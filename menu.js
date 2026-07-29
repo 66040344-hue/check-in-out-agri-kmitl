@@ -1,11 +1,12 @@
 import { initAuth, logoutUser } from './auth.js';
-import { getQueryParam } from './utils.js';
+import { getQueryParam, loadCurrentSubject } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
   
   const roomId = getQueryParam('room') || 'Unknown';
   document.getElementById('room-id-display').textContent = roomId;
+  loadCurrentSubject(roomId, 'subject-display');
   
   initAuth((user) => {
     if (!user) {

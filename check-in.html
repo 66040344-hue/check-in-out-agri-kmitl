@@ -41,14 +41,15 @@
       </div>
 
       <div class="card mb-6">
-        <div class="flex justify-between items-center mb-4">
+        <div class="flex justify-between items-start mb-4">
           <div>
             <p class="text-sm text-slate-500">ห้องเรียน</p>
             <p class="text-xl font-bold text-slate-800" id="room-id-display">Unknown</p>
+            <p class="text-md font-bold text-blue-600 mt-1 hidden" id="subject-display">กำลังโหลดวิชา...</p>
           </div>
-          <div class="text-right">
-            <p class="text-sm text-slate-500">ผู้สอน</p>
-            <p class="text-base font-semibold text-slate-700" id="user-name">กำลังโหลด...</p>
+          <div class="text-right hidden" id="time-container">
+            <p class="text-sm text-slate-500">เวลาเรียน</p>
+            <p class="text-base font-semibold text-slate-700" id="time-display"></p>
           </div>
         </div>
 
@@ -57,10 +58,39 @@
       </div>
 
       <div class="form-group flex-1">
-        <label class="form-label">เบอร์โทรศัพท์ติดต่อ</label>
-        <input type="tel" id="phone-input" class="form-input mb-4" placeholder="08x-xxx-xxxx" disabled>
+        <div class="mb-6" style="background: var(--slate-50); padding: 1rem; border-radius: 0.75rem; border: 1px solid var(--slate-200);">
+          <p class="text-sm text-slate-500 mb-1">เข้าสู่ระบบในชื่อ</p>
+          <p class="text-base font-semibold text-slate-800" id="user-name">กำลังโหลด...</p>
+          <p class="text-sm text-slate-500" id="user-email"></p>
+        </div>
 
-        <label class="form-label">ถ่ายภาพยืนยันการเข้าสอน</label>
+        <label class="form-label">เบอร์โทรศัพท์ติดต่อ (10 หลัก)</label>
+        <div class="phone-input-wrapper">
+          <input type="tel" id="phone-input" maxlength="10" autocomplete="off" disabled class="phone-hidden-input">
+          <div class="phone-boxes-container" style="display: flex; gap: 0.25rem; justify-content: space-between;">
+            <div class="phone-box"></div>
+            <div class="phone-box"></div>
+            <div class="phone-box"></div>
+            <div class="phone-box"></div>
+            <div class="phone-box"></div>
+            <div class="phone-box"></div>
+            <div class="phone-box"></div>
+            <div class="phone-box"></div>
+            <div class="phone-box"></div>
+            <div class="phone-box"></div>
+          </div>
+        </div>
+
+        <label class="form-label">ถ่ายภาพยืนยันการเข้าใช้งาน</label>
+        
+        <!-- Preview Container -->
+        <div id="photo-preview-container" class="hidden" style="margin-bottom: 1rem; position: relative; border-radius: 0.75rem; overflow: hidden; border: 1px solid var(--slate-200); background: #000;">
+          <img id="photo-preview" style="width: 100%; max-height: 400px; object-fit: contain; display: block;" />
+          <button id="btn-retake-photo" style="position: absolute; bottom: 0.5rem; right: 0.5rem; background: rgba(0,0,0,0.6); color: white; border: none; padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
+            <i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i> ถ่ายใหม่
+          </button>
+        </div>
+
         <label id="upload-area" class="upload-area disabled">
           <div id="upload-icon-container" style="text-align: center;">
             <i data-lucide="camera"

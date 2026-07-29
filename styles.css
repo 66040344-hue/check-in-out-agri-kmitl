@@ -385,6 +385,55 @@ body {
   cursor: not-allowed;
 }
 
+/* Phone OTP Input boxes */
+.phone-box {
+  flex: 1;
+  height: 2.75rem;
+  border: 1.5px solid var(--slate-200);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--slate-800);
+  background-color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.phone-box.active {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.phone-box.filled {
+  border-color: var(--primary-300);
+  background-color: var(--primary-50);
+}
+
+.phone-input-wrapper {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.phone-hidden-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  cursor: text;
+}
+.phone-hidden-input:disabled {
+  cursor: not-allowed;
+}
+
+.phone-hidden-input:disabled ~ .phone-boxes-container .phone-box {
+  background-color: var(--slate-100);
+  color: var(--slate-400);
+}
+
 /* Image Upload Area */
 .upload-area {
   width: 100%;

@@ -1,5 +1,5 @@
 import { initAuth } from './auth.js';
-import { db, collection, addDoc, getDocs, deleteDoc, doc, setDoc, updateDoc, query, orderBy } from './firebase-config.js';
+import { db, collection, addDoc, getDocs, deleteDoc, doc, setDoc, updateDoc, query, orderBy, where } from './firebase-config.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
@@ -307,7 +307,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function deleteSchedule(id) {
     if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบตารางสอนนี้?')) {
-      await deleteDoc(doc(db, 'schedules', id));
+      try {
+        const scheduleToDelete = schedulesData.find(s => s.id === id);
+        const roomName = scheduleToDelete ? scheduleToDelete.room : null;
+
+        await deleteDoc(doc(db, 'schedules', id));
+        
+        // ตรวจสอบว่ายังมีตารางสอนของห้องนี้เหลืออยู่หรือไม่
+        if (roomName) {
+          const qRemaining = query(collection(db, 'schedules'), where('room', '==', roomName));
+          const snapRemaining = await getDocs(qRemaining);
+          if (snapRemaining.empty) {
+            // ถ้าไม่มีแล้ว ให้ลบห้องนั้นออกจากฐานข้อมูล rooms ด้วย
+            await deleteDoc(doc(db, 'rooms', roomName));
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+      }
       fetchData();
     }
   }

@@ -1,39 +1,42 @@
 import { initAuth } from './auth.js';
-import { getQueryParam, calculateDistance, compressImage } from './utils.js';
-import { db, doc, getDoc, collection, addDoc, serverTimestamp } from './firebase-config.js';
+import { getQueryParam, calculateDistance, compressImage, loadCurrentSubject } from './utils.js';
+import { db, doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs } from './firebase-config.js';
 
 const STATUS_LOCATING = 'locating';
 const STATUS_READY = 'ready';
-const STATUS_WARNING = 'warning'; 
-const STATUS_BLOCKED = 'blocked'; 
+const STATUS_WARNING = 'warning';
+const STATUS_BLOCKED = 'blocked';
 const STATUS_ERROR = 'error';
 
-const DEFAULT_COORDS = { lat: 13.7298, lng: 100.7782 }; 
+const DEFAULT_COORDS = { lat: 13.7298, lng: 100.7782 };
 
 document.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
-  
+
   const roomId = getQueryParam('room') || 'Unknown';
   document.getElementById('room-id-display').textContent = roomId;
-  
+  loadCurrentSubject(roomId, 'subject-display', 'time-display', 'time-container');
+
   let currentUser = null;
   let currentStatus = STATUS_LOCATING;
   let currentDistance = null;
   let photoFile = null;
 
   const phoneInput = document.getElementById('phone-input');
+  const phoneBoxes = document.querySelectorAll('.phone-box');
   const photoInput = document.getElementById('photo-input');
   const uploadArea = document.getElementById('upload-area');
   const uploadIconContainer = document.getElementById('upload-icon-container');
   const btnSubmit = document.getElementById('btn-submit');
   const statusContainer = document.getElementById('status-container');
-  
+
   initAuth((user) => {
     if (!user) {
       window.location.href = `index.html?room=${roomId}`;
     } else {
       currentUser = user;
-      document.getElementById('user-name').textContent = user.displayName.split(' ')[0];
+      document.getElementById('user-name').textContent = user.displayName;
+      document.getElementById('user-email').textContent = user.email;
       fetchLocationAndCompare();
     }
   });
@@ -44,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let div = document.createElement('div');
     div.className = `status-banner status-${status}`;
-    
+
     let iconHTML = '';
     let textHTML = '';
 
@@ -53,13 +56,19 @@ document.addEventListener('DOMContentLoaded', () => {
       textHTML = `<span style="font-size:0.875rem; font-weight:500;">กำลังตรวจสอบพิกัด...</span>`;
     } else if (status === STATUS_READY) {
       iconHTML = `<i data-lucide="check-circle-2"></i>`;
-      textHTML = `<span style="font-size:0.875rem; font-weight:500;">คุณอยู่ในบริเวณห้องเรียน (ห่าง ${dist} เมตร)</span>`;
+      textHTML = `<span style="font-size:0.875rem; font-weight:bold; color: var(--emerald-700);">คุณอยู่ในบริเวณห้องเรียน</span>`;
     } else if (status === STATUS_WARNING) {
       iconHTML = `<i data-lucide="alert-circle"></i>`;
-      textHTML = `<span style="font-size:0.875rem; font-weight:500;">คำเตือน: ตำแหน่งของคุณอยู่ห่างจากห้องเรียนมากเกินไป (ห่าง ${dist} เมตร)</span>`;
+      textHTML = `<span style="font-size:0.875rem; font-weight:300; color: var(--slate-800);">
+                    <span style="font-weight:bold; color: var(--amber-600);">คำเตือน:</span> ตำแหน่งของคุณอยู่ห่างจากห้องเรียนมากเกินไป (ห่าง ${dist} เมตร)
+                  </span>`;
     } else if (status === STATUS_BLOCKED) {
       iconHTML = `<i data-lucide="alert-circle"></i>`;
-      textHTML = `<span style="font-size:0.875rem; font-weight:500;">คุณไม่ได้อยู่ในบริเวณของห้องเรียน (ห่าง ${dist} เมตร)<br/>*โปรดลองอีกครั้งเมื่ออยู่ในห้องเรียน</span>`;
+      textHTML = `<span style="font-size:0.875rem; color: var(--rose-700); display:block;">
+                    <span style="font-weight:bold;">ไม่สามารถดำเนินการต่อได้</span><br/>
+                    <span style="font-weight:300;">เนื่องจากคุณไม่ได้อยู่ในบริเวณของห้องเรียน (ห่าง ${dist} เมตร)</span><br/>
+                    <span style="font-weight:300; font-size:0.75rem;">*โปรดลองอีกครั้งเมื่ออยู่ในห้องเรียน</span>
+                  </span>`;
     } else if (status === STATUS_ERROR) {
       iconHTML = `<i data-lucide="alert-circle"></i>`;
       textHTML = `<span style="font-size:0.875rem; font-weight:500;">${errorMsg}</span>`;
@@ -77,29 +86,77 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateFormState() {
     const isBlocked = (currentStatus === STATUS_BLOCKED || currentStatus === STATUS_ERROR || currentStatus === STATUS_LOCATING);
-    
+
     phoneInput.disabled = isBlocked;
-    
+
     if (isBlocked) {
       uploadArea.classList.add('disabled');
     } else {
       uploadArea.classList.remove('disabled');
     }
 
-    const phone = phoneInput.value.trim();
-    btnSubmit.disabled = isBlocked || !phone || !photoFile;
+    const phone = phoneInput.value || '';
+    const isPhoneComplete = phone.length === 10;
+    btnSubmit.disabled = isBlocked || !isPhoneComplete || !photoFile;
+  }
+
+  if (phoneInput && phoneBoxes.length === 10) {
+    phoneInput.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/\D/g, '');
+      const val = e.target.value;
+      
+      phoneBoxes.forEach((box, index) => {
+        box.textContent = val[index] || '';
+        if (index === val.length) {
+          box.classList.add('active');
+          box.classList.remove('filled');
+        } else if (index < val.length) {
+          box.classList.remove('active');
+          box.classList.add('filled');
+        } else {
+          box.classList.remove('active', 'filled');
+        }
+      });
+  
+      updateFormState();
+    });
+    
+    phoneInput.addEventListener('focus', () => {
+      const val = phoneInput.value || '';
+      const activeIndex = Math.min(val.length, 9);
+      phoneBoxes.forEach(b => b.classList.remove('active'));
+      phoneBoxes[activeIndex].classList.add('active');
+    });
+  
+    phoneInput.addEventListener('blur', () => {
+      phoneBoxes.forEach(b => b.classList.remove('active'));
+    });
   }
 
   async function fetchLocationAndCompare() {
     renderStatus(STATUS_LOCATING);
     try {
-      let targetCoords = DEFAULT_COORDS;
       const roomDoc = await getDoc(doc(db, 'rooms', roomId));
-      if (roomDoc.exists()) {
+      let isValidRoom = roomDoc.exists();
+      let targetCoords = DEFAULT_COORDS;
+
+      if (isValidRoom) {
         const roomData = roomDoc.data();
         if (roomData.lat && roomData.lng) {
           targetCoords = { lat: roomData.lat, lng: roomData.lng };
         }
+      } else {
+        // Fallback: Check if there's any schedule
+        const qSchedules = query(collection(db, 'schedules'), where('room', '==', roomId));
+        const snapSchedules = await getDocs(qSchedules);
+        if (!snapSchedules.empty) {
+          isValidRoom = true;
+        }
+      }
+
+      if (!isValidRoom) {
+        renderStatus(STATUS_ERROR, null, 'ไม่พบห้องเรียนนี้ในระบบ');
+        return;
       }
 
       if (!navigator.geolocation) {
@@ -142,28 +199,43 @@ document.addEventListener('DOMContentLoaded', () => {
   photoInput.addEventListener('change', (e) => {
     if (e.target.files && e.target.files[0]) {
       photoFile = e.target.files[0];
-      
-      uploadArea.classList.add('has-file');
-      uploadIconContainer.innerHTML = `
-        <i data-lucide="image" style="width: 32px; height: 32px; margin-bottom: 0.5rem; display: inline-block;"></i>
-        <span style="display:block; font-weight:500;">แนบรูปภาพแล้ว</span>
-        <span style="font-size:0.75rem; margin-top:0.25rem; display:block;">แตะเพื่อถ่ายใหม่</span>
-      `;
-      lucide.createIcons();
+
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        document.getElementById('photo-preview').src = evt.target.result;
+        document.getElementById('photo-preview-container').classList.remove('hidden');
+        uploadArea.classList.add('hidden');
+      };
+      reader.readAsDataURL(photoFile);
     }
     updateFormState();
   });
 
+  const btnRetakePhoto = document.getElementById('btn-retake-photo');
+  if (btnRetakePhoto) {
+    btnRetakePhoto.addEventListener('click', () => {
+      photoFile = null;
+      photoInput.value = '';
+      document.getElementById('photo-preview-container').classList.add('hidden');
+      uploadArea.classList.remove('hidden');
+      updateFormState();
+    });
+  }
+
   btnSubmit.addEventListener('click', async () => {
     if (!currentUser || !phoneInput.value || !photoFile) return;
-    
+    if (phoneInput.value.length < 10) {
+      alert('กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก');
+      return;
+    }
+
     btnSubmit.disabled = true;
     const oldText = btnSubmit.innerHTML;
     btnSubmit.innerHTML = 'กำลังบันทึก...';
 
     try {
       const base64Photo = await compressImage(photoFile);
-      
+
       await addDoc(collection(db, 'sessions'), {
         roomId,
         userId: currentUser.uid,
@@ -176,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
         checkOutTime: null,
         status: 'checked_in'
       });
-      
+
       document.getElementById('form-screen').classList.add('hidden');
       document.getElementById('success-screen').classList.remove('hidden');
     } catch (error) {

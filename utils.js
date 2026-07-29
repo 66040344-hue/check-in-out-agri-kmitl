@@ -1,3 +1,5 @@
+import { db, collection, query, where, getDocs } from './firebase-config.js';
+
 // รัศมีโลกในหน่วยกิโลเมตร
 const R = 6371; 
 
@@ -52,4 +54,85 @@ export function compressImage(file, maxWidth = 800, quality = 0.6) {
 export function getQueryParam(name) {
   const urlParams = new URLSearchParams(window.location.search);
   return urlParams.get(name);
+}
+
+export async function loadCurrentSubject(roomId, displayElementId, timeElementId = null, timeContainerId = null) {
+  const subjectDisplay = document.getElementById(displayElementId);
+  const timeDisplay = timeElementId ? document.getElementById(timeElementId) : null;
+  const timeContainer = timeContainerId ? document.getElementById(timeContainerId) : null;
+  
+  if (!subjectDisplay) return;
+  subjectDisplay.classList.remove('hidden');
+  
+  try {
+    const now = new Date();
+    const currentDayEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][now.getDay()];
+    const currentDayTh = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'][now.getDay()];
+    const currentDayThFull = 'วัน' + currentDayTh;
+    
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    
+    // ดึงตารางทั้งหมดของห้องนี้มาตรวจสอบด้วย JS เพื่อความยืดหยุ่นในการเปรียบเทียบ
+    const q = query(
+      collection(db, 'schedules'), 
+      where('room', '==', roomId)
+    );
+    const snap = await getDocs(q);
+    
+    let activeSubject = null;
+    let activeTimeStr = null;
+    
+    snap.forEach(doc => {
+      const data = doc.data();
+      const dbDay = (data.dayOfWeek || '').trim();
+      
+      // ตรวจสอบวัน (รองรับทั้งภาษาอังกฤษและภาษาไทย)
+      const isMatchDay = dbDay.toLowerCase() === currentDayEn.toLowerCase() || 
+                         dbDay === currentDayTh || 
+                         dbDay === currentDayThFull;
+                         
+      if (isMatchDay) {
+        // ตรวจสอบเวลาโดยแปลงเป็นนาที
+        let startMins = 0;
+        let endMins = 0;
+        
+        if (data.startTime) {
+          const [h, m] = data.startTime.split(':');
+          startMins = parseInt(h || 0) * 60 + parseInt(m || 0);
+        }
+        
+        if (data.endTime) {
+          const [h, m] = data.endTime.split(':');
+          endMins = parseInt(h || 0) * 60 + parseInt(m || 0);
+        }
+        
+        let isTimeMatch = false;
+        if (startMins <= endMins) {
+          isTimeMatch = (currentMinutes >= startMins && currentMinutes <= endMins);
+        } else {
+          // ข้ามคืน (เช่น 23:00 - 02:00 หรือ 23:00 - 12:00)
+          isTimeMatch = (currentMinutes >= startMins || currentMinutes <= endMins);
+        }
+
+        if (isTimeMatch) {
+          activeSubject = data.subject;
+          activeTimeStr = `${data.startTime} - ${data.endTime}`;
+        }
+      }
+    });
+    
+    if (activeSubject) {
+      subjectDisplay.textContent = `วิชา: ${activeSubject}`;
+      if (timeDisplay) timeDisplay.textContent = activeTimeStr;
+      if (timeContainer) timeContainer.classList.remove('hidden');
+    } else {
+      subjectDisplay.textContent = 'ไม่มีการเรียนการสอนในเวลานี้';
+      subjectDisplay.classList.replace('text-blue-600', 'text-slate-500');
+      if (timeContainer) timeContainer.classList.add('hidden');
+    }
+  } catch (error) {
+    console.error("Error fetching subject:", error);
+    subjectDisplay.textContent = 'ไม่สามารถดึงข้อมูลวิชาได้';
+    subjectDisplay.classList.replace('text-blue-600', 'text-rose-500');
+  }
 }

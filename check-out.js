@@ -1,5 +1,5 @@
 import { initAuth } from './auth.js';
-import { getQueryParam } from './utils.js';
+import { getQueryParam, loadCurrentSubject } from './utils.js';
 import { db, collection, query, where, getDocs, updateDoc, doc, serverTimestamp } from './firebase-config.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   const roomId = getQueryParam('room') || 'Unknown';
   document.getElementById('room-id-display').textContent = roomId;
+  loadCurrentSubject(roomId, 'subject-display');
   document.getElementById('success-room').textContent = `ห้อง ${roomId}`;
   
   let currentUser = null;
@@ -19,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const checkApp = document.getElementById('check-app');
   const checkEquipCard = document.getElementById('check-equip-card');
   const checkAppCard = document.getElementById('check-app-card');
-  const btnTestTime = document.getElementById('btn-test-time');
   
   initAuth((user) => {
     if (!user) {
@@ -134,10 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
     btnSubmit.disabled = !(isTimeValid && checkEquip.checked && checkApp.checked);
   }
 
-  btnTestTime.addEventListener('click', () => {
-    minutesUsed = 35;
-    renderTimeUI();
-  });
 
   btnSubmit.addEventListener('click', async () => {
     if (!sessionDocId) return;
