@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เมนูหลัก - ระบบยืนยันการใช้อุปกรณ์สื่อโสตฯ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+  <div class="mobile-layout">
+    <div class="page-content">
+
+      <div class="flex items-center mb-8">
+        <button onclick="history.back()" class="btn-icon-back">
+          <i data-lucide="arrow-left" style="width: 20px; height: 20px;"></i>
+        </button>
+        <h1 class="text-xl font-bold text-slate-800" style="margin-left: 1rem;">เลือกการทำรายการ</h1>
+      </div>
+
+      <div class="card mb-8">
+        <p class="text-sm text-slate-500 mb-1">ห้องเรียนปัจจุบัน</p>
+        <p class="text-2xl font-bold text-slate-800" id="room-id-display">Unknown</p>
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--slate-100);">
+          <p class="text-sm text-slate-600">
+            <span class="font-semibold">ผู้ใช้งาน:</span> <span id="user-name">กำลังโหลด...</span>
+          </p>
+          <p class="text-xs text-slate-400 mt-1" id="user-email"></p>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <button id="btn-check-in" class="menu-btn menu-btn-primary">
+          <div class="menu-btn-icon">
+            <i data-lucide="log-in" style="width: 24px; height: 24px;"></i>
+          </div>
+          <div>
+            <p class="font-bold text-lg">1. ลงชื่อเข้าใช้ห้องเรียน</p>
+            <p class="text-sm" style="color: var(--blue-100);">บันทึกพิกัดและถ่ายภาพยืนยัน</p>
+          </div>
+        </button>
+
+        <button id="btn-check-out" class="menu-btn menu-btn-danger">
+          <div class="menu-btn-icon">
+            <i data-lucide="log-out" style="width: 24px; height: 24px;"></i>
+          </div>
+          <div>
+            <p class="font-bold text-lg">2. ลงชื่อออกจากห้องเรียน</p>
+            <p class="text-sm" style="color: var(--rose-100);">ตรวจสอบอุปกรณ์และคืนห้อง</p>
+          </div>
+        </button>
+      </div>
+
+      <div style="margin-top: 2rem; text-align: center;">
+        <button id="btn-logout" class="btn"
+          style="background: none; color: var(--slate-500); text-decoration: underline; box-shadow: none;">
+          ออกจากระบบ
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module" src="js/menu.js"></script>
+</body>
+
+</html>
