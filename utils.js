@@ -18,6 +18,41 @@ export function calculateDistance(lat1, lon1, lat2, lon2) {
   return distance;
 }
 
+export function isClassEnded(endTimeStr, checkInDate) {
+  if (!endTimeStr || !checkInDate) return false;
+  
+  // แปลง Date ของตอนนี้
+  const now = new Date();
+  
+  // หากเลยวันที่ check-in มาแล้ว (ข้ามวัน) ถือว่าหมดเวลาแน่นอน
+  // เพื่อความเรียบง่าย ถ้าวันที่ต่างกัน และเวลาปัจจุบัน มากกว่าเวลาเช็คอิน 24 ชม หรือเลยเที่ยงคืน
+  // แต่วิธีที่ง่ายกว่าคือ เราเอาเวลาปัจจุบันมาคำนวณเปรียบเทียบกับเวลาจบของวิชานั้นในวันเดียวกัน
+  
+  const [endH, endM] = endTimeStr.split(':');
+  const endMinutes = parseInt(endH || 0) * 60 + parseInt(endM || 0);
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  // ตรวจสอบว่าเช็คอินมานานเกิน 12 ชั่วโมงแล้วหรือยัง เพื่อป้องกันการลบผิดสำหรับวิชาข้ามคืน
+  const diffHours = (now - checkInDate) / (1000 * 60 * 60);
+  if (diffHours > 12) return true; // ถ้านานเกิน 12 ชม ถือว่าจบแล้วแน่ๆ
+
+  // สำหรับวันเดียวกัน: ถ้า currentMinutes เลย endMinutes ถือว่าหมดเวลา (กรณีเวลาไม่ได้ข้ามคืน)
+  // แต่ถ้าเช็คอินไปแล้วเวลาข้ามคืน เช่น เข้า 23:00 ออก 02:00
+  // เราจะเช็คโดยอิงจากระยะเวลาที่เช็คอิน (diffHours) ถ้าหมดคลาสจริงก็ควรเกิน 
+  
+  // สร้าง Date object ของเวลาจบในวันที่เช็คอิน
+  const endDate = new Date(checkInDate.getTime());
+  endDate.setHours(parseInt(endH), parseInt(endM), 0, 0);
+
+  // ถ้าเวลาจบน้อยกว่าเวลาเข้า ถือว่าข้ามคืน (เช่นเข้า 23:00 จบ 02:00) ให้บวกไป 1 วัน
+  if (endDate < checkInDate && (checkInDate.getHours() * 60 + checkInDate.getMinutes() > endMinutes)) {
+    endDate.setDate(endDate.getDate() + 1);
+  }
+
+  // ตอนนี้เวลาเกิน endDate หรือยัง?
+  return now >= endDate;
+}
+
 export function compressImage(file, maxWidth = 800, quality = 0.6) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -81,6 +116,7 @@ export async function loadCurrentSubject(roomId, displayElementId, timeElementId
     
     let activeSubject = null;
     let activeTimeStr = null;
+    let activeSchedule = null;
     
     snap.forEach(doc => {
       const data = doc.data();
@@ -117,6 +153,7 @@ export async function loadCurrentSubject(roomId, displayElementId, timeElementId
         if (isTimeMatch) {
           activeSubject = data.subject;
           activeTimeStr = `${data.startTime} - ${data.endTime}`;
+          activeSchedule = { id: doc.id, ...data };
         }
       }
     });
@@ -125,14 +162,17 @@ export async function loadCurrentSubject(roomId, displayElementId, timeElementId
       subjectDisplay.textContent = `วิชา: ${activeSubject}`;
       if (timeDisplay) timeDisplay.textContent = activeTimeStr;
       if (timeContainer) timeContainer.classList.remove('hidden');
+      return activeSchedule;
     } else {
       subjectDisplay.textContent = 'ไม่มีการเรียนการสอนในเวลานี้';
       subjectDisplay.classList.replace('text-blue-600', 'text-slate-500');
       if (timeContainer) timeContainer.classList.add('hidden');
+      return null;
     }
   } catch (error) {
     console.error("Error fetching subject:", error);
     subjectDisplay.textContent = 'ไม่สามารถดึงข้อมูลวิชาได้';
     subjectDisplay.classList.replace('text-blue-600', 'text-rose-500');
+    return null;
   }
 }

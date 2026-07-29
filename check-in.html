@@ -21,7 +21,7 @@
         <i data-lucide="check-circle-2" style="width: 40px; height: 40px;"></i>
       </div>
       <h1 class="text-2xl font-bold text-emerald-800 mb-2">เข้าใช้งานสำเร็จ</h1>
-      <p style="color: var(--emerald-600);">บันทึกข้อมูลการเข้าสอนเรียบร้อยแล้ว</p>
+      <p style="color: var(--emerald-600);">บันทึกข้อมูลการเข้าใช้งานเรียบร้อยแล้ว</p>
       <button onclick="window.history.back()"
         style="margin-top: 2rem; color: var(--emerald-700); text-decoration: underline; font-weight: 500; background: none; border: none; cursor: pointer;">
         กลับสู่เมนูหลัก
@@ -58,7 +58,8 @@
       </div>
 
       <div class="form-group flex-1">
-        <div class="mb-6" style="background: var(--slate-50); padding: 1rem; border-radius: 0.75rem; border: 1px solid var(--slate-200);">
+        <div class="mb-6"
+          style="background: var(--slate-50); padding: 1rem; border-radius: 0.75rem; border: 1px solid var(--slate-200);">
           <p class="text-sm text-slate-500 mb-1">เข้าสู่ระบบในชื่อ</p>
           <p class="text-base font-semibold text-slate-800" id="user-name">กำลังโหลด...</p>
           <p class="text-sm text-slate-500" id="user-email"></p>
@@ -82,11 +83,13 @@
         </div>
 
         <label class="form-label">ถ่ายภาพยืนยันการเข้าใช้งาน</label>
-        
+
         <!-- Preview Container -->
-        <div id="photo-preview-container" class="hidden" style="margin-bottom: 1rem; position: relative; border-radius: 0.75rem; overflow: hidden; border: 1px solid var(--slate-200); background: #000;">
+        <div id="photo-preview-container" class="hidden"
+          style="margin-bottom: 1rem; position: relative; border-radius: 0.75rem; overflow: hidden; border: 1px solid var(--slate-200); background: #000;">
           <img id="photo-preview" style="width: 100%; max-height: 400px; object-fit: contain; display: block;" />
-          <button id="btn-retake-photo" style="position: absolute; bottom: 0.5rem; right: 0.5rem; background: rgba(0,0,0,0.6); color: white; border: none; padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
+          <button id="btn-retake-photo"
+            style="position: absolute; bottom: 0.5rem; right: 0.5rem; background: rgba(0,0,0,0.6); color: white; border: none; padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
             <i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i> ถ่ายใหม่
           </button>
         </div>

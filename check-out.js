@@ -1,5 +1,5 @@
 import { initAuth } from './auth.js';
-import { getQueryParam, loadCurrentSubject } from './utils.js';
+import { getQueryParam, loadCurrentSubject, isClassEnded } from './utils.js';
 import { db, collection, query, where, getDocs, updateDoc, doc, serverTimestamp } from './firebase-config.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -35,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const q = query(
         collection(db, 'sessions'), 
         where('userId', '==', currentUser.uid),
-        where('roomId', '==', roomId),
         where('status', '==', 'checked_in')
       );
       const querySnapshot = await getDocs(q);
@@ -45,11 +44,30 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      const session = querySnapshot.docs[0];
+      // Pick the active session matching current room if possible, else the latest active session
+      let session = querySnapshot.docs.find(d => d.data().roomId === roomId);
+      if (!session) {
+        const sorted = querySnapshot.docs.sort((a,b) => (b.data().checkInTime?.toMillis() || 0) - (a.data().checkInTime?.toMillis() || 0));
+        session = sorted[0];
+      }
+
       sessionDocId = session.id;
-      
       const sessionData = session.data();
       checkInDate = sessionData.checkInTime ? sessionData.checkInTime.toDate() : new Date();
+
+      // Check if class ended
+      if (isClassEnded(sessionData.endTime, checkInDate)) {
+        await updateDoc(session.ref, {
+          status: 'auto_checked_out',
+          checkOutTime: serverTimestamp()
+        });
+        showScreen('no-session-screen');
+        return;
+      }
+      
+      if (sessionData.roomId) {
+        document.getElementById('room-id-display').textContent = sessionData.roomId;
+      }
       
       updateTime();
       showScreen('form-screen');
@@ -67,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderTimeUI() {
-    const isTimeValid = minutesUsed >= 30;
+    const isTimeValid = true; // อนุญาตให้ลงชื่อออกได้ทุกเมื่อ
     
     const timeStatusContainer = document.getElementById('time-status-container');
     const timeIcon = document.getElementById('time-icon');
@@ -79,32 +97,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const mins = minutesUsed % 60;
     timeValue.textContent = `${hours} ชม. ${mins} นาที`;
 
-    if (isTimeValid) {
-      timeStatusContainer.style.backgroundColor = 'var(--blue-50)';
-      timeIcon.style.color = 'var(--blue-600)';
-      timeLabel.style.color = 'var(--blue-700)';
-      timeValue.style.color = 'var(--blue-800)';
-      timeWarning.classList.add('hidden');
-      
-      // Enable checkboxes
-      checkEquip.disabled = false;
-      checkApp.disabled = false;
-      checkEquipCard.classList.remove('disabled');
-      checkAppCard.classList.remove('disabled');
-    } else {
-      timeStatusContainer.style.backgroundColor = 'var(--rose-50)';
-      timeIcon.style.color = 'var(--rose-600)';
-      timeLabel.style.color = 'var(--rose-700)';
-      timeValue.style.color = 'var(--rose-800)';
-      timeWarning.classList.remove('hidden');
-      timeWarning.style.display = 'flex';
-      
-      // Disable checkboxes
-      checkEquip.disabled = true;
-      checkApp.disabled = true;
-      checkEquipCard.classList.add('disabled');
-      checkAppCard.classList.add('disabled');
-    }
+    timeStatusContainer.style.backgroundColor = 'var(--blue-50)';
+    timeIcon.style.color = 'var(--blue-600)';
+    timeLabel.style.color = 'var(--blue-700)';
+    timeValue.style.color = 'var(--blue-800)';
+    timeWarning.classList.add('hidden');
+    timeWarning.style.display = 'none';
+    
+    // Enable checkboxes
+    checkEquip.disabled = false;
+    checkApp.disabled = false;
+    checkEquipCard.classList.remove('disabled');
+    checkAppCard.classList.remove('disabled');
     
     checkCanSubmit();
   }
@@ -130,8 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
   checkApp.addEventListener('change', () => updateCardStyle(checkApp, 'check-app-card', 'check-app-title', 'check-app-desc'));
 
   function checkCanSubmit() {
-    const isTimeValid = minutesUsed >= 30;
-    btnSubmit.disabled = !(isTimeValid && checkEquip.checked && checkApp.checked);
+    btnSubmit.disabled = !(checkEquip.checked && checkApp.checked);
   }
 
 

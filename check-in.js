@@ -1,6 +1,6 @@
 import { initAuth } from './auth.js';
-import { getQueryParam, calculateDistance, compressImage, loadCurrentSubject } from './utils.js';
-import { db, doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs } from './firebase-config.js';
+import { getQueryParam, calculateDistance, compressImage, loadCurrentSubject, isClassEnded } from './utils.js';
+import { db, doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, updateDoc } from './firebase-config.js';
 
 const STATUS_LOCATING = 'locating';
 const STATUS_READY = 'ready';
@@ -15,7 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const roomId = getQueryParam('room') || 'Unknown';
   document.getElementById('room-id-display').textContent = roomId;
-  loadCurrentSubject(roomId, 'subject-display', 'time-display', 'time-container');
+  
+  let activeSchedule = null;
+  loadCurrentSubject(roomId, 'subject-display', 'time-display', 'time-container').then(sched => {
+    activeSchedule = sched;
+  });
 
   let currentUser = null;
   let currentStatus = STATUS_LOCATING;
@@ -30,16 +34,51 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnSubmit = document.getElementById('btn-submit');
   const statusContainer = document.getElementById('status-container');
 
-  initAuth((user) => {
+  initAuth(async (user) => {
     if (!user) {
       window.location.href = `index.html?room=${roomId}`;
     } else {
       currentUser = user;
       document.getElementById('user-name').textContent = user.displayName;
       document.getElementById('user-email').textContent = user.email;
-      fetchLocationAndCompare();
+      
+      const hasOngoing = await checkActiveSessions(user.uid);
+      if (!hasOngoing) {
+        fetchLocationAndCompare();
+      }
     }
   });
+
+  async function checkActiveSessions(uid) {
+    const q = query(collection(db, 'sessions'), where('userId', '==', uid), where('status', '==', 'checked_in'));
+    const snap = await getDocs(q);
+    
+    let hasOngoingClass = false;
+    let ongoingSubject = '';
+
+    for (const docSnap of snap.docs) {
+      const data = docSnap.data();
+      const checkInDate = data.checkInTime ? data.checkInTime.toDate() : new Date();
+      if (isClassEnded(data.endTime, checkInDate)) {
+        // หมดเวลาแล้ว ให้ทำ Auto check-out
+        await updateDoc(docSnap.ref, {
+          status: 'auto_checked_out',
+          checkOutTime: serverTimestamp()
+        });
+      } else {
+        hasOngoingClass = true;
+        ongoingSubject = data.subject || 'วิชาอื่น';
+      }
+    }
+
+    if (hasOngoingClass) {
+      renderStatus(STATUS_BLOCKED, null, `คุณยังไม่ได้ลงชื่อออกจากวิชา ${ongoingSubject}`);
+      btnSubmit.disabled = true;
+      phoneInput.disabled = true;
+      uploadArea.classList.add('disabled');
+    }
+    return hasOngoingClass;
+  }
 
   function renderStatus(status, dist = null, errorMsg = '') {
     currentStatus = status;
@@ -64,7 +103,11 @@ document.addEventListener('DOMContentLoaded', () => {
                   </span>`;
     } else if (status === STATUS_BLOCKED) {
       iconHTML = `<i data-lucide="alert-circle"></i>`;
-      textHTML = `<span style="font-size:0.875rem; color: var(--rose-700); display:block;">
+      textHTML = errorMsg ? `<span style="font-size:0.875rem; color: var(--rose-700); display:block;">
+                    <span style="font-weight:bold;">ไม่สามารถดำเนินการต่อได้</span><br/>
+                    <span style="font-weight:500;">${errorMsg}</span>
+                  </span>` 
+                : `<span style="font-size:0.875rem; color: var(--rose-700); display:block;">
                     <span style="font-weight:bold;">ไม่สามารถดำเนินการต่อได้</span><br/>
                     <span style="font-weight:300;">เนื่องจากคุณไม่ได้อยู่ในบริเวณของห้องเรียน (ห่าง ${dist} เมตร)</span><br/>
                     <span style="font-weight:300; font-size:0.75rem;">*โปรดลองอีกครั้งเมื่ออยู่ในห้องเรียน</span>
@@ -246,7 +289,10 @@ document.addEventListener('DOMContentLoaded', () => {
         photoBase64: base64Photo,
         checkInTime: serverTimestamp(),
         checkOutTime: null,
-        status: 'checked_in'
+        status: 'checked_in',
+        scheduleId: activeSchedule ? activeSchedule.id : null,
+        subject: activeSchedule ? activeSchedule.subject : 'Unknown',
+        endTime: activeSchedule ? activeSchedule.endTime : null
       });
 
       document.getElementById('form-screen').classList.add('hidden');

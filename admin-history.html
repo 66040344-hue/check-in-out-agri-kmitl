@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ประวัติการใช้งาน (Admin) - ระบบยืนยันการใช้อุปกรณ์สื่อโสตฯ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { background-color: #f8fafc; }
+    
+    .admin-nav-bar {
+      background: white;
+      border-bottom: 1px solid var(--slate-200);
+      box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+
+    .stat-card {
+      background: white;
+      border: 1px solid var(--slate-200);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px -4px rgba(15, 23, 42, 0.08);
+    }
+    .stat-icon {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      background: white;
+      border-radius: 1rem;
+      border: 1px solid var(--slate-200);
+      box-shadow: var(--shadow-sm);
+    }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { background: var(--slate-50); padding: 1rem 1.25rem; font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; color: var(--slate-600); border-bottom: 1px solid var(--slate-200); white-space: nowrap; }
+    td { padding: 1rem 1.25rem; font-size: 0.875rem; color: var(--slate-800); border-bottom: 1px solid var(--slate-100); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--slate-50); }
+
+    .badge { padding: 0.35rem 0.65rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap; }
+    .badge-blue { background: var(--blue-50); color: var(--blue-700); border: 1px solid var(--blue-200); }
+    .badge-emerald { background: var(--emerald-50); color: var(--emerald-700); border: 1px solid var(--emerald-200); }
+    .badge-rose { background: var(--rose-50); color: var(--rose-700); border: 1px solid var(--rose-200); }
+
+    .btn-photo-preview {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.5rem;
+      border: 1.5px solid var(--slate-200);
+      background: var(--slate-50);
+      cursor: pointer;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .btn-photo-preview:hover {
+      border-color: var(--blue-400);
+      transform: scale(1.08);
+      box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25);
+    }
+    .btn-photo-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Photo Modal Lightbox */
+    #photo-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    #photo-modal-card {
+      background: white;
+      border-radius: 1.25rem;
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow: hidden;
+      box-shadow: var(--shadow-xl);
+      display: flex;
+      flex-direction: column;
+    }
+    #photo-modal-content {
+      max-width: 100%;
+      max-height: 75vh;
+      object-fit: contain;
+      background: #000;
+      display: block;
+    }
+    
+    .filter-pill {
+      padding: 0.4rem 0.875rem;
+      border-radius: 9999px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      border: 1px solid var(--slate-200);
+      background: white;
+      color: var(--slate-600);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-pill.active {
+      background: var(--slate-900);
+      color: white;
+      border-color: var(--slate-900);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="admin-layout">
+    
+    <!-- Navbar Header -->
+    <nav class="admin-nav-bar">
+      <div style="max-width: 80rem; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.875rem;">
+          <div style="width: 2.75rem; height: 2.75rem; background: var(--grad-accent); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);">
+            <i data-lucide="history" style="width: 24px; height: 24px;"></i>
+          </div>
+          <div>
+            <h1 style="font-size: 1.25rem; font-weight: 700; color: var(--slate-900); line-height: 1.2;">ประวัติการเข้าใช้งานทั้งหมด (Admin)</h1>
+            <p style="font-size: 0.8125rem; color: var(--slate-500);">ตรวจสอบ Transaction การเช็คอิน-เช็คเอาต์และรูปถ่ายยืนยัน</p>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <button onclick="window.location.href='admin.html'" class="btn" style="width: auto; background: white; color: var(--slate-700); border: 1px solid var(--slate-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
+            <i data-lucide="calendar" style="width: 18px; height: 18px;"></i> จัดการตารางสอน
+          </button>
+          <button onclick="window.location.href='index.html'" class="btn" style="width: auto; background: white; color: var(--rose-600); border: 1px solid var(--slate-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
+            <i data-lucide="log-out" style="width: 18px; height: 18px;"></i> ออกจากระบบ
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div style="max-width: 80rem; margin: 0 auto; width: 100%; padding: 2rem 1.5rem;" class="animate-fade-in">
+      
+      <!-- Stats Overview Grid -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
+        <div class="stat-card">
+          <div class="stat-icon" style="background: var(--blue-50); color: var(--blue-600);">
+            <i data-lucide="activity" style="width: 22px; height: 22px;"></i>
+          </div>
+          <div>
+            <p style="font-size: 0.8125rem; color: var(--slate-500); font-weight: 500;">รายการทั้งหมด</p>
+            <p style="font-size: 1.5rem; font-weight: 700; color: var(--slate-800);" id="stat-total">0</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background: var(--emerald-50); color: var(--emerald-600);">
+            <i data-lucide="check-circle-2" style="width: 22px; height: 22px;"></i>
+          </div>
+          <div>
+            <p style="font-size: 0.8125rem; color: var(--slate-500); font-weight: 500;">ลงชื่อออกปกติ</p>
+            <p style="font-size: 1.5rem; font-weight: 700; color: var(--slate-800);" id="stat-checkedout">0</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background: var(--rose-50); color: var(--rose-600);">
+            <i data-lucide="alert-triangle" style="width: 22px; height: 22px;"></i>
+          </div>
+          <div>
+            <p style="font-size: 0.8125rem; color: var(--slate-500); font-weight: 500;">ไม่ได้ลงชื่อออก (Auto)</p>
+            <p style="font-size: 1.5rem; font-weight: 700; color: var(--rose-600);" id="stat-missing">0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls Panel (Search & Filter Pills) -->
+      <div class="card mb-6" style="padding: 1.25rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;" id="filter-pills-container">
+            <button class="filter-pill active" data-filter="all">ทั้งหมด</button>
+            <button class="filter-pill" data-filter="checked_in">กำลังใช้งาน</button>
+            <button class="filter-pill" data-filter="checked_out">ลงชื่อออกแล้ว</button>
+            <button class="filter-pill" data-filter="auto_checked_out">ไม่ได้ลงชื่อออก</button>
+          </div>
+
+          <div style="position: relative; width: 280px;">
+            <input type="text" id="history-search" placeholder="ค้นหาผู้ใช้/ห้อง/วิชา..." class="form-input" style="padding-left: 2.25rem; font-size: 0.875rem;">
+            <i data-lucide="search" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--slate-400);"></i>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- History Table Container -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>วันที่/เวลาเข้า</th>
+              <th>ผู้ใช้งาน</th>
+              <th>ห้องเรียน & วิชา</th>
+              <th>เวลาที่ออก</th>
+              <th>สถานะ</th>
+              <th>ภาพถ่ายยืนยัน</th>
+            </tr>
+          </thead>
+          <tbody id="history-table-body">
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 3rem; color: var(--slate-500);">กำลังโหลดข้อมูลประวัติ...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Photo Modal Lightbox -->
+  <div id="photo-modal">
+    <div id="photo-modal-card">
+      <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--slate-100); display: flex; justify-content: space-between; align-items: center; background: var(--slate-50);">
+        <span style="font-weight: 700; color: var(--slate-800); font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="image" style="width: 18px; height: 18px; color: var(--blue-600);"></i> ภาพถ่ายยืนยันการเข้าใช้งาน
+        </span>
+        <button id="btn-close-photo" style="background: none; border: none; cursor: pointer; color: var(--slate-400);">
+          <i data-lucide="x" style="width: 22px; height: 22px;"></i>
+        </button>
+      </div>
+      <img id="photo-modal-content" src="" alt="ภาพถ่ายยืนยัน" />
+    </div>
+  </div>
+
+  <script type="module" src="admin-history.js"></script>
+</body>
+
+</html>

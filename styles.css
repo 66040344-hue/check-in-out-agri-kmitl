@@ -545,6 +545,12 @@ body {
   border: 1px solid var(--rose-200);
 }
 
+.status-blocked {
+  background-color: var(--rose-50);
+  color: var(--rose-700);
+  border: 1px solid var(--rose-200);
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

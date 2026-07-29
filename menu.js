@@ -25,6 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = `check-out.html?room=${roomId}`;
   });
 
+  document.getElementById('btn-history').addEventListener('click', () => {
+    window.location.href = `history.html?room=${roomId}`;
+  });
+
   document.getElementById('btn-logout').addEventListener('click', async () => {
     await logoutUser();
     window.location.href = `index.html?room=${roomId}`;
