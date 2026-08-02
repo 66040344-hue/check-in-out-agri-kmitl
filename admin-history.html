@@ -212,9 +212,14 @@
             <button class="filter-pill" data-filter="auto_checked_out">ไม่ได้ลงชื่อออก</button>
           </div>
 
-          <div style="position: relative; width: 280px;">
-            <input type="text" id="history-search" placeholder="ค้นหาผู้ใช้/ห้อง/วิชา..." class="form-input" style="padding-left: 2.25rem; font-size: 0.875rem;">
-            <i data-lucide="search" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--slate-400);"></i>
+          <div style="display: flex; gap: 0.75rem; align-items: center; width: 100%; max-width: 480px;">
+            <div style="position: relative; flex: 1;">
+              <input type="text" id="history-search" placeholder="ค้นหาผู้ใช้/ห้อง/วิชา..." class="form-input" style="padding-left: 2.25rem; font-size: 0.875rem;">
+              <i data-lucide="search" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--slate-400);"></i>
+            </div>
+            <button id="btn-delete-all" class="btn" style="width: auto; background: var(--rose-50); color: var(--rose-700); border: 1px solid var(--rose-200); padding: 0.5rem 1rem; font-size: 0.875rem; box-shadow: none;">
+              <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i> ล้างประวัติ
+            </button>
           </div>
 
         </div>
@@ -231,6 +236,7 @@
               <th>เวลาที่ออก</th>
               <th>สถานะ</th>
               <th>ภาพถ่ายยืนยัน</th>
+              <th style="width: 80px; text-align: center;">จัดการ</th>
             </tr>
           </thead>
           <tbody id="history-table-body">

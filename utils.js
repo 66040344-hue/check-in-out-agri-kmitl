@@ -24,6 +24,21 @@ export function checkAndBlockLineBrowser() {
   }
   return false;
 }
+
+export function getTimeBasedGreeting() {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 10) {
+    return 'สวัสดีตอนเช้า';
+  } else if (hour >= 10 && hour < 12) {
+    return 'สวัสดีตอนสาย';
+  } else if (hour >= 12 && hour < 16) {
+    return 'สวัสดีตอนบ่าย';
+  } else if (hour >= 16 && hour < 19) {
+    return 'สวัสดีตอนเย็น';
+  } else {
+    return 'สวัสดีตอนค่ำ';
+  }
+}
 // รัศมีโลกในหน่วยกิโลเมตร
 const R = 6371;
 

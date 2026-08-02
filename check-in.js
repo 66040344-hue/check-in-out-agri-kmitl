@@ -1,5 +1,5 @@
 import { initAuth } from './auth.js';
-import { getQueryParam, calculateDistance, compressImage, loadCurrentSubject, isClassEnded } from './utils.js';
+import { getQueryParam, calculateDistance, compressImage, loadCurrentSubject, isClassEnded, checkAndBlockLineBrowser } from './utils.js';
 import { db, doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, updateDoc } from './firebase-config.js';
 
 const STATUS_LOCATING = 'locating';
@@ -11,6 +11,7 @@ const STATUS_ERROR = 'error';
 const DEFAULT_COORDS = { lat: 13.7298, lng: 100.7782 };
 
 document.addEventListener('DOMContentLoaded', () => {
+  if (checkAndBlockLineBrowser()) return;
   lucide.createIcons();
 
   const roomId = getQueryParam('room') || 'Unknown';
@@ -80,19 +81,63 @@ document.addEventListener('DOMContentLoaded', () => {
     return hasOngoingClass;
   }
 
+  let locatingInterval = null;
+
+  function stopLocatingProgress() {
+    if (locatingInterval) {
+      clearInterval(locatingInterval);
+      locatingInterval = null;
+    }
+  }
+
+  function startLocatingProgress() {
+    stopLocatingProgress();
+    let percent = 5;
+    const progressBar = document.getElementById('locating-progress-bar');
+    const percentText = document.getElementById('locating-percent');
+    
+    if (progressBar) progressBar.style.width = '5%';
+    if (percentText) percentText.textContent = '5%';
+
+    locatingInterval = setInterval(() => {
+      if (percent < 90) {
+        percent += Math.floor(Math.random() * 6) + 3;
+        if (percent > 90) percent = 90;
+        const bar = document.getElementById('locating-progress-bar');
+        const text = document.getElementById('locating-percent');
+        if (bar) bar.style.width = `${percent}%`;
+        if (text) text.textContent = `${percent}%`;
+      }
+    }, 350);
+  }
+
   function renderStatus(status, dist = null, errorMsg = '') {
+    stopLocatingProgress();
     currentStatus = status;
     statusContainer.innerHTML = ''; // clear
 
     let div = document.createElement('div');
     div.className = `status-banner status-${status}`;
+    if (status === STATUS_LOCATING) {
+      div.style.width = '100%';
+    }
 
     let iconHTML = '';
     let textHTML = '';
 
     if (status === STATUS_LOCATING) {
-      iconHTML = `<i data-lucide="map-pin" style="animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;"></i>`;
-      textHTML = `<span style="font-size:0.875rem; font-weight:500;">กำลังตรวจสอบพิกัด...</span>`;
+      iconHTML = `<i data-lucide="map-pin" style="animation: pulse 1.5s infinite; color: var(--primary-600); width: 22px; height: 22px;"></i>`;
+      textHTML = `
+        <div style="width: 100%;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+            <span style="font-size:0.875rem; font-weight:600; color: var(--primary-900);">กำลังรับพิกัดตำแหน่งของคุณ...</span>
+            <span id="locating-percent" style="font-size:0.75rem; font-weight:700; color: var(--primary-600);">5%</span>
+          </div>
+          <div style="width: 100%; height: 8px; background-color: var(--primary-100); border-radius: 99px; overflow: hidden; position: relative;">
+            <div id="locating-progress-bar" style="width: 5%; height: 100%; background: var(--grad-primary); border-radius: 99px; transition: width 0.3s ease;"></div>
+          </div>
+        </div>
+      `;
     } else if (status === STATUS_READY) {
       iconHTML = `<i data-lucide="check-circle-2"></i>`;
       textHTML = `<span style="font-size:0.875rem; font-weight:bold; color: var(--emerald-700);">คุณอยู่ในบริเวณห้องเรียน</span>`;
@@ -178,6 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function fetchLocationAndCompare() {
     renderStatus(STATUS_LOCATING);
+    startLocatingProgress();
     try {
       const roomDoc = await getDoc(doc(db, 'rooms', roomId));
       let isValidRoom = roomDoc.exists();
@@ -185,8 +231,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (isValidRoom) {
         const roomData = roomDoc.data();
-        if (roomData.lat && roomData.lng) {
-          targetCoords = { lat: roomData.lat, lng: roomData.lng };
+        if (roomData.latitude && roomData.longitude) {
+          targetCoords = { lat: roomData.latitude, lng: roomData.longitude };
         }
       } else {
         // Fallback: Check if there's any schedule

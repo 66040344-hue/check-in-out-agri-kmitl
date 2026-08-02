@@ -17,10 +17,36 @@
 
   <style>
     @media print {
-      .no-print { display: none !important; }
-      #print-area { display: flex !important; position: static; width: 100%; flex-wrap: wrap; gap: 1rem; justify-content: center; background: white; }
-      #print-area * { visibility: visible; }
-      .print-card { width: 45%; border: 4px solid var(--slate-200); padding: 2rem; border-radius: 1.5rem; text-align: center; margin-bottom: 1rem; break-inside: avoid; display: flex; flex-direction: column; align-items: center; }
+      .no-print {
+        display: none !important;
+      }
+
+      #print-area {
+        display: flex !important;
+        position: static;
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+        background: white;
+      }
+
+      #print-area * {
+        visibility: visible;
+      }
+
+      .print-card {
+        width: 45%;
+        border: 4px solid var(--slate-200);
+        padding: 2rem;
+        border-radius: 1.5rem;
+        text-align: center;
+        margin-bottom: 1rem;
+        break-inside: avoid;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
     }
 
     .admin-nav-bar {
@@ -40,13 +66,15 @@
       display: flex;
       align-items: center;
       gap: 1rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
       transition: transform 0.2s, box-shadow 0.2s;
     }
+
     .stat-card:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 16px -4px rgba(15, 23, 42, 0.08);
     }
+
     .stat-icon {
       width: 3.25rem;
       height: 3.25rem;
@@ -64,13 +92,41 @@
       font-weight: 600;
       display: inline-block;
     }
-    .day-mon { background: #fef3c7; color: #b45309; }
-    .day-tue { background: #fce7f3; color: #be185d; }
-    .day-wed { background: #dcfce7; color: #15803d; }
-    .day-thu { background: #ffedd5; color: #c2410c; }
-    .day-fri { background: #e0f2fe; color: #0369a1; }
-    .day-sat { background: #f3e8ff; color: #6b21a8; }
-    .day-sun { background: #ffe4e6; color: #be123c; }
+
+    .day-mon {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .day-tue {
+      background: #fce7f3;
+      color: #be185d;
+    }
+
+    .day-wed {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .day-thu {
+      background: #ffedd5;
+      color: #c2410c;
+    }
+
+    .day-fri {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
+    .day-sat {
+      background: #f3e8ff;
+      color: #6b21a8;
+    }
+
+    .day-sun {
+      background: #ffe4e6;
+      color: #be123c;
+    }
 
     .action-btn-sm {
       padding: 0.5rem 0.75rem;
@@ -85,6 +141,7 @@
       gap: 0.375rem;
       transition: 0.2s;
     }
+
     .action-btn-sm:hover {
       background: var(--slate-50);
       border-color: var(--slate-300);
@@ -98,25 +155,30 @@
   <div id="print-area" style="display: none;"></div>
 
   <div class="admin-layout no-print">
-    
+
     <!-- Navbar Header -->
     <nav class="admin-nav-bar">
-      <div style="max-width: 80rem; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div
+        style="max-width: 80rem; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
         <div style="display: flex; align-items: center; gap: 0.875rem;">
-          <div style="width: 2.75rem; height: 2.75rem; background: var(--grad-primary); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
+          <div
+            style="width: 2.75rem; height: 2.75rem; background: var(--grad-primary); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
             <i data-lucide="shield-check" style="width: 24px; height: 24px;"></i>
           </div>
           <div>
-            <h1 style="font-size: 1.25rem; font-weight: 700; color: var(--slate-900); line-height: 1.2;">ระบบจัดการสื่อโสตฯ (Admin)</h1>
+            <h1 style="font-size: 1.25rem; font-weight: 700; color: var(--slate-900); line-height: 1.2;">
+              ระบบจัดการสื่อโสตฯ (Admin)</h1>
             <p style="font-size: 0.8125rem; color: var(--slate-500);">จัดการข้อมูลรายวิชาและ QR Code ประจำห้องเรียน</p>
           </div>
         </div>
 
         <div style="display: flex; align-items: center; gap: 0.75rem;">
-          <button onclick="window.location.href='admin-history.html'" class="btn" style="width: auto; background: var(--blue-50); color: var(--blue-700); border: 1px solid var(--blue-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
+          <button onclick="window.location.href='admin-history.html'" class="btn"
+            style="width: auto; background: var(--blue-50); color: var(--blue-700); border: 1px solid var(--blue-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
             <i data-lucide="history" style="width: 18px; height: 18px;"></i> ประวัติการใช้งาน
           </button>
-          <button onclick="window.location.href='index.html'" class="btn" style="width: auto; background: white; color: var(--rose-600); border: 1px solid var(--slate-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
+          <button onclick="window.location.href='index.html'" class="btn"
+            style="width: auto; background: white; color: var(--rose-600); border: 1px solid var(--slate-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
             <i data-lucide="log-out" style="width: 18px; height: 18px;"></i> ออกจากระบบ
           </button>
         </div>
@@ -125,9 +187,10 @@
 
     <!-- Main Container -->
     <div style="max-width: 80rem; margin: 0 auto; width: 100%; padding: 2rem 1.5rem;" class="animate-fade-in">
-      
+
       <!-- Stats Dashboard Cards -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
+      <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
         <div class="stat-card">
           <div class="stat-icon" style="background: var(--blue-50); color: var(--blue-600);">
             <i data-lucide="book-open" style="width: 24px; height: 24px;"></i>
@@ -160,8 +223,9 @@
       </div>
 
       <!-- Main Columns -->
-      <div style="display: grid; grid-template-columns: 340px 1fr; gap: 1.75rem; align-items: flex-start;" id="admin-main-grid">
-        
+      <div style="display: grid; grid-template-columns: 340px 1fr; gap: 1.75rem; align-items: flex-start;"
+        id="admin-main-grid">
+
         <!-- Left: Upload Excel Card -->
         <div class="card" style="position: sticky; top: 5rem;">
           <h2 class="card-title text-base mb-1" style="display: flex; align-items: center; gap: 0.5rem;">
@@ -169,13 +233,15 @@
             นำเข้าตารางสอน (Excel)
           </h2>
           <p class="text-xs text-slate-500 mb-4">
-            คอลัมน์: Room, Subject, TeacherName, TeacherEmail, StartTime, EndTime, DayOfWeek
+            รูปแบบ : วัน|ห้อง|เวลาเริ่ม|เวลาสิ้นสุด|ชื่อวิชา|รายชื่อผู้สอน|อีเมลผู้สอน|พิกัดห้องเรียน DMS
           </p>
 
           <label class="upload-area mb-4" id="excel-upload-area" style="position: relative; height: 10rem;">
             <i data-lucide="upload-cloud" class="text-blue-500 mb-2" style="width: 32px; height: 32px;"></i>
-            <span id="file-name" class="font-medium text-xs text-center text-slate-600" style="padding: 0 1rem;">ลากไฟล์ Excel มาวาง หรือคลิกเพื่อเลือกไฟล์</span>
-            <input type="file" id="excel-file" accept=".xlsx, .xls, .csv" style="position: absolute; inset: 0; opacity: 0; cursor: pointer;">
+            <span id="file-name" class="font-medium text-xs text-center text-slate-600" style="padding: 0 1rem;">ลากไฟล์
+              Excel มาวาง หรือคลิกเพื่อเลือกไฟล์</span>
+            <input type="file" id="excel-file" accept=".xlsx, .xls, .csv"
+              style="position: absolute; inset: 0; opacity: 0; cursor: pointer;">
           </label>
 
           <button id="btn-import" class="btn btn-primary" disabled style="padding: 0.75rem 1rem; font-size: 0.9rem;">
@@ -186,25 +252,35 @@
 
         <!-- Right: Schedule List Panel -->
         <div class="card">
-          <div class="flex justify-between items-center mb-4 flex-wrap gap-2" style="border-bottom: 1px solid var(--slate-100); padding-bottom: 1rem;">
+          <div class="flex justify-between items-center mb-4 flex-wrap gap-2"
+            style="border-bottom: 1px solid var(--slate-100); padding-bottom: 1rem;">
             <div>
               <h2 class="card-title text-lg" style="margin: 0;">รายการตารางสอน</h2>
               <p class="text-xs text-slate-400">ค้นหา แก้ไข และพิมพ์ QR Code ประจำห้อง</p>
             </div>
-            
+
             <div class="flex items-center gap-2 flex-wrap">
-              <input type="text" id="schedule-search" placeholder="ค้นหาห้อง/วิชา/อาจารย์..." class="form-input" style="padding: 0.45rem 0.875rem; font-size: 0.875rem; width: 200px;">
-              <button id="btn-print-all" class="action-btn-sm" style="background: var(--blue-50); color: var(--blue-700); border-color: var(--blue-200); font-weight: 600;">
+              <input type="text" id="schedule-search" placeholder="ค้นหาห้อง/วิชา/อาจารย์..." class="form-input"
+                style="padding: 0.45rem 0.875rem; font-size: 0.875rem; width: 200px;">
+              <button id="btn-delete-all" class="action-btn-sm"
+                style="background: var(--rose-50); color: var(--rose-700); border-color: var(--rose-200); font-weight: 600;">
+                <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i> ลบทั้งหมด
+              </button>
+              <button id="btn-print-all" class="action-btn-sm"
+                style="background: var(--blue-50); color: var(--blue-700); border-color: var(--blue-200); font-weight: 600;">
                 <i data-lucide="printer" style="width: 16px; height: 16px;"></i> พิมพ์ QR ทั้งหมด
               </button>
-              <button id="btn-add-new" class="action-btn-sm" style="background: var(--emerald-50); color: var(--emerald-700); border-color: var(--emerald-200); font-weight: 600;">
+              <button id="btn-add-new" class="action-btn-sm"
+                style="background: var(--emerald-50); color: var(--emerald-700); border-color: var(--emerald-200); font-weight: 600;">
                 <i data-lucide="plus" style="width: 16px; height: 16px;"></i> เพิ่มรายวิชา
               </button>
             </div>
           </div>
 
-          <div id="schedule-list" style="overflow-y: auto; max-height: 650px; display: flex; flex-direction: column; gap: 0.75rem; padding-right: 0.25rem;">
-            <div class="text-center text-slate-500" style="padding: 3rem 0; background: var(--slate-50); border-radius: 0.75rem; border: 1px dashed var(--slate-200);">
+          <div id="schedule-list"
+            style="overflow-y: auto; max-height: 650px; display: flex; flex-direction: column; gap: 0.75rem; padding-right: 0.25rem;">
+            <div class="text-center text-slate-500"
+              style="padding: 3rem 0; background: var(--slate-50); border-radius: 0.75rem; border: 1px dashed var(--slate-200);">
               กำลังโหลดตารางสอน...
             </div>
           </div>
@@ -218,8 +294,10 @@
   <!-- Edit/Add Schedule Modal -->
   <div id="edit-modal" class="hidden no-print"
     style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem;">
-    <div style="background: white; border-radius: 1.25rem; width: 100%; max-width: 42rem; max-height: 90vh; display: flex; flex-direction: column; box-shadow: var(--shadow-xl);">
-      <div class="flex justify-between items-center" style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--slate-100); background: var(--slate-50); border-radius: 1.25rem 1.25rem 0 0;">
+    <div
+      style="background: white; border-radius: 1.25rem; width: 100%; max-width: 42rem; max-height: 90vh; display: flex; flex-direction: column; box-shadow: var(--shadow-xl);">
+      <div class="flex justify-between items-center"
+        style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--slate-100); background: var(--slate-50); border-radius: 1.25rem 1.25rem 0 0;">
         <h2 id="modal-title" class="text-lg font-bold text-slate-800 flex items-center gap-2">
           <i data-lucide="edit" class="text-blue-600" style="width: 20px; height: 20px;"></i> แก้ไขข้อมูลรายวิชา
         </h2>
@@ -253,7 +331,8 @@
 
           <div class="form-group mb-4">
             <label class="form-label">ชื่อวิชา (Subject)</label>
-            <input type="text" id="edit-subject" class="form-input" placeholder="เช่น การเขียนโปรแกรมคอมพิวเตอร์" required>
+            <input type="text" id="edit-subject" class="form-input" placeholder="เช่น การเขียนโปรแกรมคอมพิวเตอร์"
+              required>
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;" class="mb-4">
@@ -278,20 +357,21 @@
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;" class="mb-4">
+          <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;" class="mb-4">
             <div class="form-group mb-0">
-              <label class="form-label">ละติจูด (Latitude)</label>
-              <input type="number" step="any" id="edit-lat" class="form-input" placeholder="เช่น 13.7299">
-            </div>
-            <div class="form-group mb-0">
-              <label class="form-label">ลองจิจูด (Longitude)</label>
-              <input type="number" step="any" id="edit-lng" class="form-input" placeholder="เช่น 100.7781">
+              <label class="form-label">พิกัดห้องเรียน (รูปแบบ DMS เช่น 13°43'35.9"N 100°46'49.4"E หรือ ทศนิยม 13.72,
+                100.78)</label>
+              <input type="text" id="edit-coords" class="form-input"
+                placeholder="ตัวอย่าง: 13°43'35.9&quot;N 100°46'49.4&quot;E หรือ 13.7299, 100.7781">
             </div>
           </div>
 
-          <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--slate-100);">
-            <button type="button" id="btn-cancel-modal" class="btn" style="width: auto; background: var(--slate-100); color: var(--slate-700); border: 1px solid var(--slate-200);">ยกเลิก</button>
-            <button type="submit" class="btn btn-primary" style="width: auto; padding: 0.75rem 1.5rem;">บันทึกข้อมูล</button>
+          <div
+            style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--slate-100);">
+            <button type="button" id="btn-cancel-modal" class="btn"
+              style="width: auto; background: var(--slate-100); color: var(--slate-700); border: 1px solid var(--slate-200);">ยกเลิก</button>
+            <button type="submit" class="btn btn-primary"
+              style="width: auto; padding: 0.75rem 1.5rem;">บันทึกข้อมูล</button>
           </div>
         </form>
       </div>

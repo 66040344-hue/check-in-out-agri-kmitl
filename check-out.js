@@ -1,8 +1,9 @@
 import { initAuth } from './auth.js';
-import { getQueryParam, loadCurrentSubject, isClassEnded } from './utils.js';
+import { getQueryParam, loadCurrentSubject, isClassEnded, checkAndBlockLineBrowser } from './utils.js';
 import { db, collection, query, where, getDocs, updateDoc, doc, serverTimestamp } from './firebase-config.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+  if (checkAndBlockLineBrowser()) return;
   lucide.createIcons();
   
   const roomId = getQueryParam('room') || 'Unknown';

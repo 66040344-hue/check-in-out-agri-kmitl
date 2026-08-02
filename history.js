@@ -4,7 +4,7 @@ import { isClassEnded } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
-  
+
   let currentUser = null;
   const historyContainer = document.getElementById('history-container');
 
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currentUser = user;
       document.getElementById('user-name').textContent = user.displayName;
       document.getElementById('user-email').textContent = user.email;
-      
+
       await loadHistory();
     }
   });
@@ -23,12 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadHistory() {
     try {
       const q = query(
-        collection(db, 'sessions'), 
+        collection(db, 'sessions'),
         where('userId', '==', currentUser.uid)
       );
-      
+
       const snap = await getDocs(q);
-      
+
       if (snap.empty) {
         historyContainer.innerHTML = `
           <div class="text-center text-slate-500" style="padding: 2rem; background: white; border-radius: 0.75rem; border: 1px dashed var(--slate-200);">
@@ -48,12 +48,12 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       historyContainer.innerHTML = '';
-      
+
       for (const docSnap of sortedDocs) {
         const data = docSnap.data();
         let status = data.status;
         const checkInDate = data.checkInTime ? data.checkInTime.toDate() : new Date();
-        
+
         // Lazy Evaluation for Auto Check-out
         if (status === 'checked_in') {
           if (isClassEnded(data.endTime, checkInDate)) {
@@ -68,18 +68,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const card = document.createElement('div');
         card.className = 'card';
         card.style.padding = '1rem';
-        
+
         // Format Date and Time
-        const checkInStr = data.checkInTime 
-          ? `${checkInDate.toLocaleDateString('th-TH')} ${checkInDate.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'})}`
+        const checkInStr = data.checkInTime
+          ? `${checkInDate.toLocaleDateString('th-TH')} ${checkInDate.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}`
           : '-';
-          
+
         let checkOutStr = '-';
         if (data.checkOutTime) {
           const outDate = data.checkOutTime.toDate();
-          checkOutStr = `${outDate.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'})}`;
+          checkOutStr = `${outDate.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}`;
         }
-        
+
         // Status Badge
         let statusHtml = '';
         if (status === 'checked_in') {
@@ -101,22 +101,22 @@ document.addEventListener('DOMContentLoaded', () => {
           
           <div style="background: var(--slate-50); border-radius: 0.5rem; padding: 0.75rem; border: 1px solid var(--slate-100);">
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-              <span style="font-size: 0.875rem; color: var(--slate-500);">เข้าเรียน:</span>
+              <span style="font-size: 0.875rem; color: var(--slate-500);">เข้าใช้งาน:</span>
               <span style="font-size: 0.875rem; color: var(--slate-700); font-weight: 500;">${checkInStr}</span>
             </div>
             <div style="display: flex; justify-content: space-between;">
-              <span style="font-size: 0.875rem; color: var(--slate-500);">ออกเรียน:</span>
+              <span style="font-size: 0.875rem; color: var(--slate-500);">ออกจากระบบ:</span>
               <span style="font-size: 0.875rem; color: ${status === 'auto_checked_out' ? 'var(--rose-600)' : 'var(--slate-700)'}; font-weight: 500;">
                 ${status === 'auto_checked_out' ? 'หมดเวลา (ไม่ได้ลงชื่อออก)' : checkOutStr}
               </span>
             </div>
           </div>
         `;
-        
+
         historyContainer.appendChild(card);
       }
       lucide.createIcons();
-      
+
     } catch (error) {
       console.error(error);
       historyContainer.innerHTML = `<p class="text-center text-rose-500">เกิดข้อผิดพลาดในการโหลดประวัติ</p>`;

@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const scheduleList = document.getElementById('schedule-list');
   const scheduleSearch = document.getElementById('schedule-search');
   const btnPrintAll = document.getElementById('btn-print-all');
+  const btnDeleteAll = document.getElementById('btn-delete-all');
   const btnAddNew = document.getElementById('btn-add-new');
   const printArea = document.getElementById('print-area');
   
@@ -189,51 +190,75 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const data = await excelFile.arrayBuffer();
         const workbook = XLSX.read(data);
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const json = XLSX.utils.sheet_to_json(worksheet);
-        
-        if (json.length === 0) {
-          alert('ไม่พบข้อมูลในไฟล์ Excel');
-          resetImport();
-          return;
-        }
         
         let addedCount = 0;
+        const roomsMap = {}; // To store coordinates by room name
         
-        for (const row of json) {
-          const normalizedRow = {};
-          Object.keys(row).forEach(key => {
-            const cleanKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
-            normalizedRow[cleanKey] = row[key];
-          });
-
-          const room = normalizedRow['room'] || normalizedRow['ห้อง'] || normalizedRow['ห้องเรียน'];
-          const subject = normalizedRow['subject'] || normalizedRow['วิชา'] || normalizedRow['ชื่อวิชา'];
-          const teacherName = normalizedRow['teachername'] || normalizedRow['ชื่อผู้สอน'] || normalizedRow['อาจารย์'] || '';
-          const teacherEmail = normalizedRow['teacheremail'] || normalizedRow['email'] || normalizedRow['อีเมล'] || '';
-          const startTime = normalizedRow['starttime'] || normalizedRow['เวลาเริ่ม'] || '00:00';
-          const endTime = normalizedRow['endtime'] || normalizedRow['เวลาจบ'] || '23:59';
-          const dayOfWeek = normalizedRow['dayofweek'] || normalizedRow['วัน'] || normalizedRow['day'] || 'จันทร์';
-
-          if (room && subject) {
-            await addDoc(collection(db, 'schedules'), {
-              room: String(room),
-              subject: String(subject),
-              teacherName: String(teacherName),
-              teacherEmail: String(teacherEmail),
-              startTime: String(startTime),
-              endTime: String(endTime),
-              dayOfWeek: String(dayOfWeek)
+        for (const sheetName of workbook.SheetNames) {
+          const worksheet = workbook.Sheets[sheetName];
+          // Use { raw: false } to get formatted strings for time and dates
+          const json = XLSX.utils.sheet_to_json(worksheet, { raw: false, defval: "" });
+          
+          let currentDay = sheetName.replace('วัน', ''); // Fallback to sheet name
+          
+          for (const row of json) {
+            const normalizedRow = {};
+            Object.keys(row).forEach(key => {
+              const cleanKey = key.toLowerCase().replace(/[^a-z0-9ก-๙]/g, '');
+              normalizedRow[cleanKey] = row[key];
             });
-            addedCount++;
+
+            const rawDay = normalizedRow['dayofweek'] || normalizedRow['วัน'] || normalizedRow['day'];
+            if (rawDay && String(rawDay).trim() !== '') {
+               currentDay = String(rawDay).trim();
+            }
+
+            const room = normalizedRow['room'] || normalizedRow['ห้อง'] || normalizedRow['ห้องเรียน'];
+            const subject = normalizedRow['subject'] || normalizedRow['วิชา'] || normalizedRow['ชื่อวิชา'];
+            const teacherName = normalizedRow['teachername'] || normalizedRow['ชื่อผู้สอน'] || normalizedRow['รายชื่อผู้สอน'] || normalizedRow['อาจารย์'] || '';
+            const teacherEmail = normalizedRow['teacheremail'] || normalizedRow['email'] || normalizedRow['อีเมล'] || normalizedRow['อีเมลผู้สอน'] || '';
+            let startTime = normalizedRow['starttime'] || normalizedRow['เวลาเริ่ม'] || '00:00';
+            let endTime = normalizedRow['endtime'] || normalizedRow['เวลาสิ้นสุด'] || normalizedRow['เวลาจบ'] || '23:59';
+            const dmsCoords = normalizedRow['พิกัดห้องเรียนdms'] || normalizedRow['พิกัดdms'] || normalizedRow['dms'] || '';
+
+            // Format time strings just in case they have seconds (e.g., "08:00:00" -> "08:00")
+            if (startTime.length > 5) startTime = startTime.substring(0, 5);
+            if (endTime.length > 5) endTime = endTime.substring(0, 5);
+
+            if (room && subject) {
+              await addDoc(collection(db, 'schedules'), {
+                room: String(room),
+                subject: String(subject),
+                teacherName: String(teacherName),
+                teacherEmail: String(teacherEmail),
+                startTime: String(startTime),
+                endTime: String(endTime),
+                dayOfWeek: String(currentDay)
+              });
+              addedCount++;
+              
+              if (dmsCoords) {
+                const parsedCoords = parseDMS(String(dmsCoords));
+                if (parsedCoords) {
+                  roomsMap[String(room)] = parsedCoords;
+                }
+              }
+            }
           }
+        }
+        
+        // Save extracted room coordinates
+        for (const [roomName, coords] of Object.entries(roomsMap)) {
+           await setDoc(doc(db, 'rooms', roomName), {
+             latitude: coords.lat,
+             longitude: coords.lng
+           }, { merge: true });
         }
         
         if (addedCount > 0) {
           alert(`นำเข้าข้อมูลสำเร็จจำนวน ${addedCount} รายการ!`);
         } else {
-          alert('นำเข้าสำเร็จ แต่ไม่พบข้อมูลที่ตรงกับรูปแบบที่ระบบต้องการ\nโปรดตรวจสอบว่ามีคอลัมน์ Room และ Subject');
+          alert('นำเข้าสำเร็จ แต่ไม่พบข้อมูลที่ตรงกับรูปแบบที่ระบบต้องการ\nโปรดตรวจสอบคอลัมน์ Room, วิชา ในไฟล์');
         }
         
         resetImport();
@@ -244,6 +269,21 @@ document.addEventListener('DOMContentLoaded', () => {
         resetImport();
       }
     });
+  }
+
+  function parseDMS(dmsString) {
+    if (!dmsString) return null;
+    const regex = /(\d+)[^\d]+(\d+)[^\d]+([\d.]+)[^\d]+([NS])[^\d]+(\d+)[^\d]+(\d+)[^\d]+([\d.]+)[^\d]+([EW])/i;
+    const match = dmsString.match(regex);
+    if (!match) return null;
+
+    let lat = parseFloat(match[1]) + parseFloat(match[2])/60 + parseFloat(match[3])/3600;
+    if (match[4].toUpperCase() === 'S') lat = -lat;
+
+    let lng = parseFloat(match[5]) + parseFloat(match[6])/60 + parseFloat(match[7])/3600;
+    if (match[8].toUpperCase() === 'W') lng = -lng;
+
+    return { lat, lng };
   }
 
   function resetImport() {
@@ -270,8 +310,11 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('edit-teacher-email').value = schedule.teacherEmail || '';
       
       const roomInfo = roomsData.find(r => r.id === schedule.room);
-      document.getElementById('edit-lat').value = roomInfo?.latitude || '';
-      document.getElementById('edit-lng').value = roomInfo?.longitude || '';
+      if (roomInfo && roomInfo.latitude && roomInfo.longitude) {
+        document.getElementById('edit-coords').value = `${roomInfo.latitude}, ${roomInfo.longitude}`;
+      } else {
+        document.getElementById('edit-coords').value = '';
+      }
     } else {
       modalTitle.innerHTML = `<i data-lucide="plus-circle" class="text-emerald-600" style="width: 20px; height: 20px;"></i> เพิ่มข้อมูลรายวิชาใหม่`;
       form.reset();
@@ -279,8 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('edit-day').value = 'จันทร์';
       document.getElementById('edit-start-time').value = '09:00';
       document.getElementById('edit-end-time').value = '12:00';
-      document.getElementById('edit-lat').value = '';
-      document.getElementById('edit-lng').value = '';
+      document.getElementById('edit-coords').value = '';
     }
     
     lucide.createIcons();
@@ -319,14 +361,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Save Room Coordinates if provided
-        const lat = parseFloat(document.getElementById('edit-lat').value);
-        const lng = parseFloat(document.getElementById('edit-lng').value);
-        
-        if (!isNaN(lat) && !isNaN(lng) && scheduleData.room) {
-           await setDoc(doc(db, 'rooms', scheduleData.room), {
-             latitude: lat,
-             longitude: lng
-           }, { merge: true });
+        const coordsRaw = document.getElementById('edit-coords').value.trim();
+        if (coordsRaw && scheduleData.room) {
+          let lat = NaN, lng = NaN;
+          const parsedDms = parseDMS(coordsRaw);
+          if (parsedDms) {
+            lat = parsedDms.lat;
+            lng = parsedDms.lng;
+          } else {
+            const parts = coordsRaw.split(',');
+            if (parts.length === 2) {
+              lat = parseFloat(parts[0]);
+              lng = parseFloat(parts[1]);
+            }
+          }
+          
+          if (!isNaN(lat) && !isNaN(lng)) {
+             await setDoc(doc(db, 'rooms', scheduleData.room), {
+               latitude: lat,
+               longitude: lng
+             }, { merge: true });
+          }
         }
         
         closeModal();
@@ -359,6 +414,32 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       fetchData();
     }
+  }
+
+  if (btnDeleteAll) {
+    btnDeleteAll.addEventListener('click', async () => {
+      if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลตารางสอน "ทั้งหมด" ออกจากระบบ?\n(การกระทำนี้ไม่สามารถกู้คืนได้)')) {
+        btnDeleteAll.disabled = true;
+        btnDeleteAll.innerHTML = `<i data-lucide="loader" class="animate-spin" style="width: 16px; height: 16px;"></i> กำลังลบ...`;
+        try {
+          for (const s of schedulesData) {
+             await deleteDoc(doc(db, 'schedules', s.id));
+          }
+          for (const r of roomsData) {
+             await deleteDoc(doc(db, 'rooms', r.id));
+          }
+          alert('ลบข้อมูลตารางสอนและห้องเรียนทั้งหมดเรียบร้อยแล้ว');
+          fetchData();
+        } catch (err) {
+          console.error(err);
+          alert('เกิดข้อผิดพลาดในการลบข้อมูลทั้งหมด');
+        } finally {
+          btnDeleteAll.disabled = false;
+          btnDeleteAll.innerHTML = `<i data-lucide="trash-2" style="width: 16px; height: 16px;"></i> ลบทั้งหมด`;
+          lucide.createIcons();
+        }
+      }
+    });
   }
 
   if (btnAddNew) btnAddNew.addEventListener('click', () => openEditModal());

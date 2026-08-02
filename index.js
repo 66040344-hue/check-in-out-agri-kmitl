@@ -1,9 +1,15 @@
 import { initAuth, loginWithGoogle } from './auth.js';
-import { getQueryParam } from './utils.js';
+import { checkAndBlockLineBrowser, getQueryParam, getTimeBasedGreeting } from './utils.js';
 import { db, doc, getDoc, collection, query, where, getDocs } from './firebase-config.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
+  if (checkAndBlockLineBrowser()) return;
   lucide.createIcons();
+  
+  const greetingEl = document.getElementById('welcome-greeting');
+  if (greetingEl) {
+    greetingEl.textContent = getTimeBasedGreeting();
+  }
   
   const roomId = getQueryParam('room');
   const roomDisplay = document.getElementById('room-id-display');

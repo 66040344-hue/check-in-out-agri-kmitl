@@ -1,4 +1,4 @@
-import { db, collection, getDocs, query, orderBy, updateDoc, serverTimestamp } from './firebase-config.js';
+import { db, collection, getDocs, query, orderBy, updateDoc, serverTimestamp, deleteDoc, doc } from './firebase-config.js';
 import { isClassEnded } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const statMissing = document.getElementById('stat-missing');
   const historySearch = document.getElementById('history-search');
   const filterPills = document.querySelectorAll('.filter-pill');
+  const btnDeleteAll = document.getElementById('btn-delete-all');
   
   // Photo modal elements
   const photoModal = document.getElementById('photo-modal');
@@ -160,6 +161,9 @@ document.addEventListener('DOMContentLoaded', () => {
         ? `<button class="btn-photo-preview" onclick="window.viewPhoto('${item.photoBase64}')" title="คลิกเพื่อขยายดูรูป"><img src="${item.photoBase64}" alt="Photo"/></button>` 
         : `<span style="color:var(--slate-300); font-size:0.75rem;">ไม่มีรูป</span>`;
 
+      // Action button
+      const actionBtn = `<button class="action-btn-sm" style="color: var(--rose-600); width: 100%; display: flex; justify-content: center; align-items: center;" onclick="window.deleteHistoryItem('${item.id}')" title="ลบประวัตินี้"><i data-lucide="trash-2" style="width: 16px; height: 16px;"></i></button>`;
+
       html += `
         <tr>
           <td>${dateStr}</td>
@@ -168,6 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <td style="font-weight: 500;">${outStr}</td>
           <td>${statusBadge}</td>
           <td>${photoBtn}</td>
+          <td style="text-align: center;">${actionBtn}</td>
         </tr>
       `;
     });
@@ -200,6 +205,44 @@ document.addEventListener('DOMContentLoaded', () => {
       photoModal.style.display = 'flex';
     }
   };
+
+  // Global function to delete a history item
+  window.deleteHistoryItem = async function(id) {
+    if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบประวัติรายการนี้?')) {
+      try {
+        await deleteDoc(doc(db, 'sessions', id));
+        loadAdminHistory();
+      } catch (err) {
+        console.error(err);
+        alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+      }
+    }
+  };
+
+  if (btnDeleteAll) {
+    btnDeleteAll.addEventListener('click', async () => {
+      if (confirm('คุณแน่ใจหรือไม่ว่าต้องการล้างประวัติการใช้งาน "ทั้งหมด"?\n(การกระทำนี้ไม่สามารถกู้คืนได้)')) {
+        btnDeleteAll.disabled = true;
+        btnDeleteAll.innerHTML = `<i data-lucide="loader" class="animate-spin" style="width: 16px; height: 16px;"></i> กำลังลบ...`;
+        try {
+          const q = query(collection(db, 'sessions'));
+          const snap = await getDocs(q);
+          for (const document of snap.docs) {
+             await deleteDoc(doc(db, 'sessions', document.id));
+          }
+          alert('ล้างประวัติทั้งหมดเรียบร้อยแล้ว');
+          loadAdminHistory();
+        } catch (err) {
+          console.error(err);
+          alert('เกิดข้อผิดพลาดในการลบข้อมูลทั้งหมด');
+        } finally {
+          btnDeleteAll.disabled = false;
+          btnDeleteAll.innerHTML = `<i data-lucide="trash-2" style="width: 16px; height: 16px;"></i> ล้างประวัติ`;
+          lucide.createIcons();
+        }
+      }
+    });
+  }
 
   loadAdminHistory();
 });

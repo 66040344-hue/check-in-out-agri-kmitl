@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   const roomId = getQueryParam('room') || 'Unknown';
   document.getElementById('room-id-display').textContent = roomId;
-  loadCurrentSubject(roomId, 'subject-display');
+  loadCurrentSubject(roomId, 'subject-display', 'time-display', 'time-container');
   
   initAuth((user) => {
     if (!user) {
