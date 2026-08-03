@@ -228,9 +228,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const rawRoomId = roomId ? roomId.trim() : '';
       const variations = new Set([
         rawRoomId,
-        encodeURIComponent(rawRoomId),
-        decodeURIComponent(rawRoomId)
+        encodeURIComponent(rawRoomId)
       ]);
+      try {
+        variations.add(decodeURIComponent(rawRoomId));
+      } catch(e) {}
 
       let isValidRoom = false;
       let targetCoords = DEFAULT_COORDS;

@@ -46,9 +46,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       const variations = new Set([
         rawRoomId,
-        encodeURIComponent(rawRoomId),
-        decodeURIComponent(rawRoomId)
+        encodeURIComponent(rawRoomId)
       ]);
+      try {
+        variations.add(decodeURIComponent(rawRoomId));
+      } catch(e) {}
 
       // Check rooms collection
       for (const v of variations) {
