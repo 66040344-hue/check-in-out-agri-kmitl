@@ -2,7 +2,7 @@ import { db, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc, que
 
 document.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
-  
+
   let schedulesData = [];
   let roomsData = [];
   let excelFile = null;
@@ -11,20 +11,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const fileNameDisplay = document.getElementById('file-name');
   const btnImport = document.getElementById('btn-import');
   const importText = document.getElementById('import-text');
-  
+
   const scheduleList = document.getElementById('schedule-list');
   const scheduleSearch = document.getElementById('schedule-search');
   const btnPrintAll = document.getElementById('btn-print-all');
   const btnDeleteAll = document.getElementById('btn-delete-all');
   const btnAddNew = document.getElementById('btn-add-new');
   const printArea = document.getElementById('print-area');
-  
+
   const modal = document.getElementById('edit-modal');
   const form = document.getElementById('edit-form');
   const btnCloseModal = document.getElementById('btn-close-modal');
   const btnCancelModal = document.getElementById('btn-cancel-modal');
   const modalTitle = document.getElementById('modal-title');
-  
+
   const statSchedules = document.getElementById('stat-schedules');
   const statRooms = document.getElementById('stat-rooms');
   const statTeachers = document.getElementById('stat-teachers');
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
     return;
   }
-  
+
   fetchData();
 
   async function fetchData() {
@@ -53,8 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const qRooms = query(collection(db, 'rooms'));
       const snapRooms = await getDocs(qRooms);
-      roomsData = snapRooms.docs.map(d => ({ id: d.id, ...d.data() }));
-      
+      roomsData = snapRooms.docs.map(d => ({ id: decodeURIComponent(d.id), ...d.data() }));
+
       updateStats();
       renderSchedules();
     } catch (error) {
@@ -65,10 +65,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateStats() {
     statSchedules.textContent = schedulesData.length;
-    
+
     const uniqueRooms = new Set(schedulesData.map(s => s.room));
     statRooms.textContent = uniqueRooms.size;
-    
+
     const uniqueTeachers = new Set(schedulesData.map(s => s.teacherName).filter(Boolean));
     statTeachers.textContent = uniqueTeachers.size;
   }
@@ -91,9 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const filtered = schedulesData.filter(s => {
       if (!queryStr) return true;
       return (s.room || '').toLowerCase().includes(queryStr) ||
-             (s.subject || '').toLowerCase().includes(queryStr) ||
-             (s.teacherName || '').toLowerCase().includes(queryStr) ||
-             (s.dayOfWeek || '').toLowerCase().includes(queryStr);
+        (s.subject || '').toLowerCase().includes(queryStr) ||
+        (s.teacherName || '').toLowerCase().includes(queryStr) ||
+        (s.dayOfWeek || '').toLowerCase().includes(queryStr);
     });
 
     if (filtered.length === 0) {
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
       return;
     }
-    
+
     scheduleList.innerHTML = '';
     filtered.forEach(schedule => {
       const div = document.createElement('div');
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
       div.onmouseover = () => { div.style.background = 'var(--slate-50)'; div.style.borderColor = 'var(--blue-200)'; };
       div.onmouseout = () => { div.style.background = 'white'; div.style.borderColor = 'var(--slate-200)'; };
       div.onclick = () => openEditModal(schedule);
-      
+
       const teacherEmailHTML = schedule.teacherEmail ? `<span style="color:var(--slate-400); font-weight:normal;"> (${schedule.teacherEmail})</span>` : '';
       const dayBadge = `<span class="badge-day ${getDayBadgeClass(schedule.dayOfWeek)}">${schedule.dayOfWeek || 'ไม่ระบุวัน'}</span>`;
 
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       `;
       scheduleList.appendChild(div);
-      
+
       const btnPrint = div.querySelector('.btn-print');
       btnPrint.onclick = () => printQRCodes([schedule.room]);
 
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const btnDelete = div.querySelector('.btn-delete');
       btnDelete.onclick = () => deleteSchedule(schedule.id);
     });
-    
+
     lucide.createIcons();
   }
 
@@ -186,21 +186,21 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!excelFile) return;
       btnImport.disabled = true;
       importText.textContent = 'กำลังนำเข้า...';
-      
+
       try {
         const data = await excelFile.arrayBuffer();
         const workbook = XLSX.read(data);
-        
+
         let addedCount = 0;
         const roomsMap = {}; // To store coordinates by room name
-        
+
         for (const sheetName of workbook.SheetNames) {
           const worksheet = workbook.Sheets[sheetName];
           // Use { raw: false } to get formatted strings for time and dates
           const json = XLSX.utils.sheet_to_json(worksheet, { raw: false, defval: "" });
-          
+
           let currentDay = sheetName.replace('วัน', ''); // Fallback to sheet name
-          
+
           for (const row of json) {
             const normalizedRow = {};
             Object.keys(row).forEach(key => {
@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const rawDay = normalizedRow['dayofweek'] || normalizedRow['วัน'] || normalizedRow['day'];
             if (rawDay && String(rawDay).trim() !== '') {
-               currentDay = String(rawDay).trim();
+              currentDay = String(rawDay).trim();
             }
 
             const room = normalizedRow['room'] || normalizedRow['ห้อง'] || normalizedRow['ห้องเรียน'];
@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 dayOfWeek: String(currentDay)
               });
               addedCount++;
-              
+
               if (dmsCoords) {
                 const parsedCoords = parseDMS(String(dmsCoords));
                 if (parsedCoords) {
@@ -246,21 +246,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
         }
-        
+
         // Save extracted room coordinates
         for (const [roomName, coords] of Object.entries(roomsMap)) {
-           await setDoc(doc(db, 'rooms', roomName), {
-             latitude: coords.lat,
-             longitude: coords.lng
-           }, { merge: true });
+          await setDoc(doc(db, 'rooms', encodeURIComponent(roomName)), {
+            latitude: coords.lat,
+            longitude: coords.lng
+          }, { merge: true });
         }
-        
+
         if (addedCount > 0) {
           alert(`นำเข้าข้อมูลสำเร็จจำนวน ${addedCount} รายการ!`);
         } else {
           alert('นำเข้าสำเร็จ แต่ไม่พบข้อมูลที่ตรงกับรูปแบบที่ระบบต้องการ\nโปรดตรวจสอบคอลัมน์ Room, วิชา ในไฟล์');
         }
-        
+
         resetImport();
         fetchData();
       } catch (error) {
@@ -277,10 +277,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const match = dmsString.match(regex);
     if (!match) return null;
 
-    let lat = parseFloat(match[1]) + parseFloat(match[2])/60 + parseFloat(match[3])/3600;
+    let lat = parseFloat(match[1]) + parseFloat(match[2]) / 60 + parseFloat(match[3]) / 3600;
     if (match[4].toUpperCase() === 'S') lat = -lat;
 
-    let lng = parseFloat(match[5]) + parseFloat(match[6])/60 + parseFloat(match[7])/3600;
+    let lng = parseFloat(match[5]) + parseFloat(match[6]) / 60 + parseFloat(match[7]) / 3600;
     if (match[8].toUpperCase() === 'W') lng = -lng;
 
     return { lat, lng };
@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('edit-end-time').value = schedule.endTime || '12:00';
       document.getElementById('edit-teacher-name').value = schedule.teacherName || '';
       document.getElementById('edit-teacher-email').value = schedule.teacherEmail || '';
-      
+
       const roomInfo = roomsData.find(r => r.id === schedule.room);
       if (roomInfo && roomInfo.latitude && roomInfo.longitude) {
         document.getElementById('edit-coords').value = `${roomInfo.latitude}, ${roomInfo.longitude}`;
@@ -324,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('edit-end-time').value = '12:00';
       document.getElementById('edit-coords').value = '';
     }
-    
+
     lucide.createIcons();
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
@@ -341,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
+
       const id = document.getElementById('edit-id').value;
       const scheduleData = {
         room: document.getElementById('edit-room').value.trim(),
@@ -375,15 +375,15 @@ document.addEventListener('DOMContentLoaded', () => {
               lng = parseFloat(parts[1]);
             }
           }
-          
+
           if (!isNaN(lat) && !isNaN(lng)) {
-             await setDoc(doc(db, 'rooms', scheduleData.room), {
-               latitude: lat,
-               longitude: lng
-             }, { merge: true });
+            await setDoc(doc(db, 'rooms', encodeURIComponent(scheduleData.room)), {
+              latitude: lat,
+              longitude: lng
+            }, { merge: true });
           }
         }
-        
+
         closeModal();
         fetchData();
       } catch (error) {
@@ -400,12 +400,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const roomName = scheduleToDelete ? scheduleToDelete.room : null;
 
         await deleteDoc(doc(db, 'schedules', id));
-        
+
         if (roomName) {
           const qRemaining = query(collection(db, 'schedules'), where('room', '==', roomName));
           const snapRemaining = await getDocs(qRemaining);
           if (snapRemaining.empty) {
-            await deleteDoc(doc(db, 'rooms', roomName));
+            await deleteDoc(doc(db, 'rooms', encodeURIComponent(roomName)));
           }
         }
       } catch (err) {
@@ -423,10 +423,11 @@ document.addEventListener('DOMContentLoaded', () => {
         btnDeleteAll.innerHTML = `<i data-lucide="loader" class="animate-spin" style="width: 16px; height: 16px;"></i> กำลังลบ...`;
         try {
           for (const s of schedulesData) {
-             await deleteDoc(doc(db, 'schedules', s.id));
+            await deleteDoc(doc(db, 'schedules', s.id));
           }
           for (const r of roomsData) {
-             await deleteDoc(doc(db, 'rooms', r.id));
+            // Note: r.id is already decoded in roomsData, so we must encode it to delete
+            await deleteDoc(doc(db, 'rooms', encodeURIComponent(r.id)));
           }
           alert('ลบข้อมูลตารางสอนและห้องเรียนทั้งหมดเรียบร้อยแล้ว');
           fetchData();
@@ -456,39 +457,39 @@ document.addEventListener('DOMContentLoaded', () => {
   async function printQRCodes(rooms) {
     printArea.innerHTML = '';
     const baseUrl = window.location.origin + window.location.pathname.replace('admin.html', '');
-    
+
     rooms.forEach(room => {
       const card = document.createElement('div');
       card.className = 'print-card';
-      
+
       const h1 = document.createElement('h1');
       h1.style.cssText = 'font-size: 2.5rem; font-weight: 900; margin-bottom: 0.5rem; color: var(--slate-800);';
       h1.textContent = `ห้อง ${room}`;
-      
+
       const h2 = document.createElement('h2');
       h2.style.cssText = 'font-size: 1.25rem; font-weight: bold; color: var(--slate-500); margin-bottom: 2rem;';
       h2.textContent = 'สแกนเพื่อยืนยันการใช้ห้อง';
-      
+
       const qr = new QRious({
         value: `${baseUrl}index.html?room=${room}`,
         size: 220,
         level: 'H'
       });
-      
+
       const img = document.createElement('img');
       img.src = qr.toDataURL();
-      
+
       const footer = document.createElement('div');
       footer.style.cssText = 'margin-top: 2rem; padding: 0.5rem 1.5rem; background: var(--slate-100); border-radius: 9999px; color: var(--slate-500); font-size: 0.875rem; font-weight: 500;';
       footer.textContent = 'คณะเทคโนโลยีการเกษตร สจล.';
-      
+
       card.appendChild(h1);
       card.appendChild(h2);
       card.appendChild(img);
       card.appendChild(footer);
       printArea.appendChild(card);
     });
-    
+
     setTimeout(() => {
       window.print();
     }, 100);

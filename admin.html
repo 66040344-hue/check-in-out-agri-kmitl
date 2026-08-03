@@ -177,6 +177,12 @@
             style="width: auto; background: var(--blue-50); color: var(--blue-700); border: 1px solid var(--blue-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
             <i data-lucide="history" style="width: 18px; height: 18px;"></i> ประวัติการใช้งาน
           </button>
+          <button onclick="window.location.href='admin-instructor.html'" class="btn" style="width: auto; background: var(--emerald-50); color: var(--emerald-700); border: 1px solid var(--emerald-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
+            <i data-lucide="users" style="width: 18px; height: 18px;"></i> สถิติผู้สอน
+          </button>
+          <button onclick="window.location.href='admin-settings.html'" class="btn" style="width: auto; background: white; color: var(--slate-700); border: 1px solid var(--slate-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
+            <i data-lucide="settings" style="width: 18px; height: 18px;"></i> ตั้งค่าพิกัด
+          </button>
           <button onclick="window.location.href='index.html'" class="btn"
             style="width: auto; background: white; color: var(--rose-600); border: 1px solid var(--slate-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
             <i data-lucide="log-out" style="width: 18px; height: 18px;"></i> ออกจากระบบ
@@ -191,7 +197,7 @@
       <!-- Stats Dashboard Cards -->
       <div
         style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
-        <div class="stat-card">
+        <div class="stat-card" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseenter="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-md)'" onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)'" onclick="window.scrollTo({top: document.getElementById('admin-main-grid').offsetTop - 100, behavior: 'smooth'});">
           <div class="stat-icon" style="background: var(--blue-50); color: var(--blue-600);">
             <i data-lucide="book-open" style="width: 24px; height: 24px;"></i>
           </div>
@@ -201,7 +207,7 @@
           </div>
         </div>
 
-        <div class="stat-card">
+        <div class="stat-card" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseenter="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-md)'" onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)'" onclick="window.location.href='admin-settings.html?tab=rooms'">
           <div class="stat-icon" style="background: var(--emerald-50); color: var(--emerald-600);">
             <i data-lucide="door-open" style="width: 24px; height: 24px;"></i>
           </div>
@@ -211,7 +217,7 @@
           </div>
         </div>
 
-        <div class="stat-card">
+        <div class="stat-card" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseenter="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-md)'" onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)'" onclick="window.location.href='admin-instructor.html'">
           <div class="stat-icon" style="background: var(--amber-50); color: var(--amber-600);">
             <i data-lucide="user-check" style="width: 24px; height: 24px;"></i>
           </div>

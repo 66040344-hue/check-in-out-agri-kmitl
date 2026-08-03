@@ -225,7 +225,17 @@ document.addEventListener('DOMContentLoaded', () => {
     renderStatus(STATUS_LOCATING);
     startLocatingProgress();
     try {
-      const roomDoc = await getDoc(doc(db, 'rooms', roomId));
+      const roomDoc = await getDoc(doc(db, 'rooms', encodeURIComponent(roomId)));
+      const settingsDoc = await getDoc(doc(db, 'settings', 'systemSettings'));
+      
+      let readyDistLimit = 15;
+      let warningDistLimit = 24;
+      if (settingsDoc.exists()) {
+        const sData = settingsDoc.data();
+        if (sData.readyDistance) readyDistLimit = sData.readyDistance;
+        if (sData.warningDistance) warningDistLimit = sData.warningDistance;
+      }
+
       let isValidRoom = roomDoc.exists();
       let targetCoords = DEFAULT_COORDS;
 
@@ -263,9 +273,9 @@ document.addEventListener('DOMContentLoaded', () => {
           ));
           currentDistance = dist;
 
-          if (dist <= 15) {
+          if (dist <= readyDistLimit) {
             renderStatus(STATUS_READY, dist);
-          } else if (dist <= 24) {
+          } else if (dist <= warningDistLimit) {
             renderStatus(STATUS_WARNING, dist);
           } else {
             renderStatus(STATUS_BLOCKED, dist);

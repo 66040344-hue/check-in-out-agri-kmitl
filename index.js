@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     try {
       let isValidRoom = false;
-      const roomSnap = await getDoc(doc(db, 'rooms', roomId));
+      const roomSnap = await getDoc(doc(db, 'rooms', encodeURIComponent(roomId)));
       if (roomSnap.exists()) {
         isValidRoom = true;
       } else {

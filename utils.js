@@ -124,6 +124,71 @@ export function compressImage(file, maxWidth = 800, quality = 0.6) {
   });
 }
 
+export function parseDMS(dmsString) {
+  const regex = /(\d+)°(\d+)'([\d.]+)"([NS])\s+(\d+)°(\d+)'([\d.]+)"([EW])/i;
+  const match = dmsString.match(regex);
+  if (match) {
+    let lat = parseInt(match[1]) + parseInt(match[2])/60 + parseFloat(match[3])/3600;
+    if (match[4].toUpperCase() === 'S') lat = -lat;
+    let lng = parseInt(match[5]) + parseInt(match[6])/60 + parseFloat(match[7])/3600;
+    if (match[8].toUpperCase() === 'W') lng = -lng;
+    return { lat, lng };
+  }
+  return null;
+}
+
+export function showToast(message, type = 'success') {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.style.cssText = 'position: fixed; top: 1rem; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none;';
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement('div');
+  const bgColor = type === 'success' ? '#10b981' : (type === 'error' ? '#ef4444' : '#3b82f6');
+  toast.style.cssText = `
+    background: ${bgColor};
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 2rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    font-size: 0.875rem;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  `;
+
+  const icon = type === 'success' ? '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>' 
+    : (type === 'error' ? '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>' 
+    : '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>');
+
+  toast.innerHTML = `${icon} <span>${message}</span>`;
+  container.appendChild(toast);
+
+  // Trigger reflow
+  toast.offsetHeight;
+
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateY(0)';
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(-20px)';
+    setTimeout(() => {
+      toast.remove();
+      if (container.childNodes.length === 0) {
+        container.remove();
+      }
+    }, 300);
+  }, 3000);
+}
+
 // ฟังก์ชันช่วยเหลือสำหรับอ่าน query params
 export function getQueryParam(name) {
   const urlParams = new URLSearchParams(window.location.search);
