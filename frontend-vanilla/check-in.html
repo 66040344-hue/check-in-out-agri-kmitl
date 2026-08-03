@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ลงชื่อเข้าใช้ - ระบบยืนยันการใช้อุปกรณ์สื่อโสตฯ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+  <!-- Success Screen -->
+  <div id="success-screen" class="hidden mobile-layout" style="background-color: var(--slate-50);">
+    <div class="page-content center text-center">
+      <div
+        style="width: 5rem; height: 5rem; background: var(--grad-success); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4); animation: bounce 1s infinite;">
+        <i data-lucide="check-circle-2" style="width: 44px; height: 44px;"></i>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-800 mb-2">ลงชื่อเข้าใช้สำเร็จ</h1>
+      <p class="text-slate-500 mb-8" style="font-size: 0.95rem;">บันทึกข้อมูลการเข้าใช้งานห้องเรียนเรียบร้อยแล้ว</p>
+
+      <button onclick="window.history.back()" class="btn btn-primary" style="box-shadow: var(--shadow-md);">
+        <i data-lucide="arrow-left" style="width: 18px; height: 18px;"></i>
+        <span>กลับสู่เมนูหลัก</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Form Screen -->
+  <div id="form-screen" class="mobile-layout">
+    <div class="page-content">
+
+      <div class="flex items-center mb-6">
+        <button onclick="history.back()" class="btn-icon-back">
+          <i data-lucide="arrow-left" style="width: 20px; height: 20px;"></i>
+        </button>
+        <h1 class="text-xl font-bold text-slate-800" style="margin-left: 1rem;">ลงชื่อเข้าใช้</h1>
+      </div>
+
+      <div class="card mb-6">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <p class="text-xs font-semibold text-slate-400 mb-1">ห้องเรียน</p>
+            <p style="font-size: 2.25rem; font-weight: 800; color: #000000; line-height: 1.1; letter-spacing: -0.02em;"
+              id="room-id-display">Unknown</p>
+            <p style="font-size: 1.125rem; font-weight: 800; color: #000000; margin-top: 0.35rem;" class="hidden"
+              id="subject-display">กำลังโหลดวิชา...</p>
+          </div>
+          <div class="text-right hidden" id="time-container">
+            <p class="text-xs font-semibold text-slate-400 mb-1">เวลาเรียน</p>
+            <p style="font-size: 1rem; font-weight: 700; color: #000000;" id="time-display"></p>
+          </div>
+        </div>
+
+        <!-- Status Container -->
+        <div id="status-container"></div>
+      </div>
+
+      <div class="form-group flex-1">
+        <div class="mb-6"
+          style="background: var(--slate-50); padding: 1rem; border-radius: 0.75rem; border: 1px solid var(--slate-200);">
+          <p class="text-sm text-slate-500 mb-1">เข้าสู่ระบบในชื่อ</p>
+          <p class="text-base font-semibold text-slate-800" id="user-name">กำลังโหลด...</p>
+          <p class="text-sm text-slate-500" id="user-email"></p>
+        </div>
+
+        <label class="form-label">เบอร์โทรศัพท์ติดต่อ (10 หลัก)</label>
+        <div class="phone-input-wrapper">
+          <input type="tel" id="phone-input" maxlength="10" autocomplete="off" disabled class="phone-hidden-input">
+          <div class="phone-boxes-container" style="display: flex; gap: 0.25rem; justify-content: space-between;">
+            <div class="phone-box"></div>
+            <div class="phone-box"></div>
+            <div class="phone-box"></div>
+            <div class="phone-box"></div>
+            <div class="phone-box"></div>
+            <div class="phone-box"></div>
+            <div class="phone-box"></div>
+            <div class="phone-box"></div>
+            <div class="phone-box"></div>
+            <div class="phone-box"></div>
+          </div>
+        </div>
+
+        <label class="form-label">ถ่ายภาพยืนยันการเข้าใช้งาน</label>
+
+        <!-- Preview Container -->
+        <div id="photo-preview-container" class="hidden"
+          style="margin-bottom: 1rem; position: relative; border-radius: 0.75rem; overflow: hidden; border: 1px solid var(--slate-200); background: #000;">
+          <img id="photo-preview" style="width: 100%; max-height: 400px; object-fit: contain; display: block;" />
+          <button id="btn-retake-photo"
+            style="position: absolute; bottom: 0.5rem; right: 0.5rem; background: rgba(0,0,0,0.6); color: white; border: none; padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
+            <i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i> ถ่ายใหม่
+          </button>
+        </div>
+
+        <label id="upload-area" class="upload-area disabled">
+          <div id="upload-icon-container" style="text-align: center;">
+            <i data-lucide="camera"
+              style="width: 32px; height: 32px; margin-bottom: 0.5rem; display: inline-block;"></i>
+            <p id="upload-text">แตะเพื่อเปิดกล้อง</p>
+          </div>
+          <input type="file" id="photo-input" accept="image/*" capture="environment" class="hidden">
+        </label>
+      </div>
+
+      <button id="btn-submit" class="btn btn-primary mt-8" disabled>
+        บันทึกข้อมูล Check-in
+      </button>
+
+    </div>
+  </div>
+
+  <style>
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translateY(-5%);
+        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+      }
+
+      50% {
+        transform: translateY(0);
+        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+      }
+    }
+  </style>
+  <script type="module" src="check-in.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>จัดการระบบ - ระบบยืนยันการใช้อุปกรณ์สื่อโสตฯ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { background-color: #f8fafc; }
+    
+    .admin-nav-bar {
+      background: white;
+      border-bottom: 1px solid var(--slate-200);
+      box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+
+    .settings-card {
+      background: white;
+      border: 1px solid var(--slate-200);
+      border-radius: 1.25rem;
+      padding: 2rem;
+      box-shadow: var(--shadow-sm);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .settings-icon-header {
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 1rem;
+      background: var(--blue-50);
+      color: var(--blue-600);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="admin-layout">
+    
+    <!-- Navbar Header -->
+    <nav class="admin-nav-bar">
+      <div style="max-width: 80rem; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.875rem;">
+          <div style="width: 2.75rem; height: 2.75rem; background: var(--grad-primary); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
+            <i data-lucide="settings" style="width: 24px; height: 24px;"></i>
+          </div>
+          <div>
+            <h1 style="font-size: 1.25rem; font-weight: 700; color: var(--slate-900); line-height: 1.2;">ตั้งค่าระบบ (Admin)</h1>
+            <p style="font-size: 0.8125rem; color: var(--slate-500);">จัดการพิกัดระยะห่างและการตั้งค่าอื่นๆ</p>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <button onclick="window.location.href='admin.html'" class="btn" style="width: auto; background: white; color: var(--slate-700); border: 1px solid var(--slate-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
+            <i data-lucide="calendar" style="width: 18px; height: 18px;"></i> ตารางสอน
+          </button>
+          <button onclick="window.location.href='admin-history.html'" class="btn" style="width: auto; background: white; color: var(--slate-700); border: 1px solid var(--slate-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
+            <i data-lucide="history" style="width: 18px; height: 18px;"></i> ประวัติการใช้งาน
+          </button>
+          <button onclick="window.location.href='admin-instructor.html'" class="btn" style="width: auto; background: var(--emerald-50); color: var(--emerald-700); border: 1px solid var(--emerald-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
+            <i data-lucide="users" style="width: 18px; height: 18px;"></i> สถิติผู้สอน
+          </button>
+          <button onclick="window.location.href='index.html'" class="btn" style="width: auto; background: white; color: var(--rose-600); border: 1px solid var(--slate-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
+            <i data-lucide="log-out" style="width: 18px; height: 18px;"></i> ออกจากระบบ
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div style="max-width: 80rem; margin: 0 auto; width: 100%; padding: 2rem 1.5rem;" class="animate-fade-in">
+      
+      <!-- Tabs -->
+      <div style="display: flex; gap: 2rem; border-bottom: 1px solid var(--slate-200); margin-bottom: 2rem;">
+        <button id="tab-distance" style="background: none; border: none; padding: 0.75rem 0.5rem; font-size: 1rem; font-weight: 700; color: var(--blue-600); border-bottom: 2px solid var(--blue-600); cursor: pointer; transition: all 0.2s;">ตั้งค่าระยะห่างจากพิกัด</button>
+        <button id="tab-rooms" style="background: none; border: none; padding: 0.75rem 0.5rem; font-size: 1rem; font-weight: 500; color: var(--slate-500); border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.2s;">จัดการพิกัดห้องเรียน</button>
+      </div>
+
+      <!-- Distance Settings -->
+      <div id="section-distance" class="settings-card mb-8">
+        <div class="settings-icon-header">
+          <i data-lucide="map-pin" style="width: 32px; height: 32px;"></i>
+        </div>
+        <h2 class="text-xl font-bold text-slate-800 mb-2">ระยะพิกัดห้องเรียน</h2>
+        <p class="text-sm text-slate-500 mb-6">กำหนดระยะทางห่างจากจุดศูนย์กลางของห้องเรียนที่อนุญาตให้เข้าใช้งานได้</p>
+
+        <form id="settings-form">
+          <div class="form-group mb-5">
+            <label class="form-label font-semibold text-emerald-700 flex items-center gap-2">
+              <i data-lucide="check-circle-2" style="width: 18px; height: 18px;"></i> ระยะปกติ (เมตร)
+            </label>
+            <p class="text-xs text-slate-500 mb-2">ระยะที่ผู้ใช้งานสามารถกด "ใช้งานห้อง" ได้ทันทีด้วยสถานะปกติ</p>
+            <input type="number" id="ready-distance" class="form-input" min="1" max="1000" value="15" required>
+          </div>
+
+          <div class="form-group mb-8">
+            <label class="form-label font-semibold text-amber-600 flex items-center gap-2">
+              <i data-lucide="alert-triangle" style="width: 18px; height: 18px;"></i> ระยะแจ้งเตือน (เมตร)
+            </label>
+            <p class="text-xs text-slate-500 mb-2">ระยะที่ผู้ใช้งานอยู่ห่างเกินระยะปกติ แต่ยังพอนุโลมให้เข้าใช้งานได้ (จะขึ้นแถบสีส้มเตือน)</p>
+            <input type="number" id="warning-distance" class="form-input" min="1" max="1000" value="24" required>
+          </div>
+
+          <div class="flex gap-3 justify-end pt-4" style="border-top: 1px solid var(--slate-100);">
+            <button type="submit" id="btn-save-settings" class="btn btn-primary" style="width: auto; padding: 0.75rem 2rem;">
+              <i data-lucide="save" style="width: 18px; height: 18px;"></i> บันทึกการตั้งค่า
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Manage Rooms -->
+      <div id="section-rooms" class="settings-card hidden" style="max-width: 100%;">
+        <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-800 mb-1">จัดการพิกัดห้องเรียน</h2>
+            <p class="text-sm text-slate-500">รายชื่อห้องเรียนพร้อมข้อมูลพิกัด (ละติจูด, ลองจิจูด)</p>
+          </div>
+          <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <div style="position: relative;">
+              <i data-lucide="search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--slate-400); width: 18px; height: 18px;"></i>
+              <input type="text" id="search-room-input" placeholder="ค้นหาชื่อห้องเรียน..." style="padding: 0.625rem 1rem 0.625rem 2.5rem; border: 1px solid var(--slate-200); border-radius: 2rem; outline: none; font-family: inherit; font-size: 0.875rem; width: 250px; transition: border-color 0.2s;">
+            </div>
+            <button id="btn-add-room" class="btn btn-primary" style="width: auto; padding: 0.625rem 1.25rem; font-size: 0.875rem; border-radius: 2rem;">
+              <i data-lucide="plus" style="width: 16px; height: 16px;"></i> เพิ่มห้องเรียน
+            </button>
+          </div>
+        </div>
+
+        <div style="overflow: hidden; border: 1px solid var(--slate-200); border-radius: 1rem; box-shadow: var(--shadow-sm); background: white;">
+          <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+              <tr style="background: var(--slate-50); border-bottom: 1px solid var(--slate-200);">
+                <th style="padding: 1rem 1.5rem; font-size: 0.8125rem; font-weight: 700; color: var(--slate-600); text-transform: uppercase; letter-spacing: 0.05em; width: 80px; text-align: center;">ลำดับ</th>
+                <th style="padding: 1rem 1.5rem; font-size: 0.8125rem; font-weight: 700; color: var(--slate-600); text-transform: uppercase; letter-spacing: 0.05em;">ห้องเรียน</th>
+                <th style="padding: 1rem 1.5rem; font-size: 0.8125rem; font-weight: 700; color: var(--slate-600); text-transform: uppercase; letter-spacing: 0.05em;">ข้อมูลพิกัด (Lat, Lng)</th>
+                <th style="padding: 1rem 1.5rem; font-size: 0.8125rem; font-weight: 700; color: var(--slate-600); text-transform: uppercase; letter-spacing: 0.05em; text-align: right; width: 140px;">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="rooms-table-body">
+              <tr>
+                <td colspan="4" style="text-align: center; padding: 3rem; color: var(--slate-400);">กำลังโหลดข้อมูล...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Edit Room Modal -->
+  <div id="room-modal" class="hidden" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem;">
+    <div style="background: white; border-radius: 1.25rem; width: 100%; max-width: 28rem; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
+      <div class="flex justify-between items-center" style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--slate-100); background: var(--slate-50); border-radius: 1.25rem 1.25rem 0 0;">
+        <h2 id="room-modal-title" class="text-lg font-bold text-slate-800 flex items-center gap-2">
+          <i data-lucide="edit" class="text-blue-600" style="width: 20px; height: 20px;"></i> แก้ไขห้องเรียน
+        </h2>
+        <button id="btn-close-room-modal" style="background: none; border: none; cursor: pointer; color: var(--slate-400);">
+          <i data-lucide="x" style="width: 24px; height: 24px;"></i>
+        </button>
+      </div>
+
+      <div style="padding: 1.5rem;">
+        <form id="room-form">
+          <div class="form-group mb-4">
+            <label class="form-label">ชื่อห้องเรียน</label>
+            <input type="text" id="room-id-input" class="form-input" placeholder="เช่น 204" required>
+            <p class="text-xs text-slate-500 mt-1">*กรณีเพิ่มห้องใหม่ จะใช้ชื่อนี้เป็นรหัสประจำห้อง</p>
+          </div>
+          
+          <div class="form-group mb-6">
+            <label class="form-label">พิกัดห้องเรียน</label>
+            <input type="text" id="room-coords-input" class="form-input" placeholder="DMS หรือ ทศนิยม (เช่น 13.7299, 100.7781)" required>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 0.75rem; border-top: 1px solid var(--slate-100); padding-top: 1.25rem;">
+            <button type="button" id="btn-cancel-room" class="btn" style="width: auto; background: var(--slate-100); color: var(--slate-700); border: 1px solid var(--slate-200);">ยกเลิก</button>
+            <button type="submit" id="btn-save-room" class="btn btn-primary" style="width: auto; padding: 0.75rem 1.5rem;">บันทึก</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal" class="hidden" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 60; display: flex; align-items: center; justify-content: center; padding: 1rem;">
+    <div style="background: white; border-radius: 1.25rem; width: 100%; max-width: 24rem; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); padding: 1.5rem; text-align: center;">
+      <div style="width: 3rem; height: 3rem; background: var(--rose-100); color: var(--rose-600); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+        <i data-lucide="alert-triangle" style="width: 24px; height: 24px;"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-800 mb-2" id="delete-modal-title">ยืนยันการลบ</h3>
+      <p class="text-sm text-slate-500 mb-6" id="delete-modal-text">คุณแน่ใจหรือไม่?</p>
+      <div class="flex gap-3 justify-center">
+        <button id="btn-cancel-delete" class="btn" style="background: var(--slate-100); color: var(--slate-700); border: none; width: auto; padding: 0.625rem 1.5rem;">ยกเลิก</button>
+        <button id="btn-confirm-delete" class="btn" style="background: var(--rose-600); color: white; border: none; width: auto; padding: 0.625rem 1.5rem;">ลบข้อมูล</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="admin-settings.js"></script>
+</body>
+
+</html>

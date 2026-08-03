@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ประวัติการใช้งาน - ระบบยืนยันการใช้อุปกรณ์สื่อโสตฯ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+  <div class="mobile-layout">
+    <div class="page-content">
+
+      <div class="flex items-center mb-6">
+        <button onclick="window.history.length > 1 ? window.history.back() : window.location.href='menu.html'" class="btn-icon-back">
+          <i data-lucide="arrow-left" style="width: 20px; height: 20px;"></i>
+        </button>
+        <h1 class="text-xl font-bold text-slate-800" style="margin-left: 1rem;">ประวัติการเข้าใช้งาน</h1>
+      </div>
+
+      <div class="card mb-4" style="background: var(--blue-50); border: 1px solid var(--blue-100);">
+        <p class="text-sm text-blue-600 mb-1">บัญชีผู้ใช้</p>
+        <p class="text-base font-bold text-blue-900" id="user-name">กำลังโหลด...</p>
+        <p class="text-sm text-blue-700" id="user-email"></p>
+      </div>
+
+      <div id="history-container" style="display: flex; flex-direction: column; gap: 1rem; padding-bottom: 2rem;">
+        <div class="text-center text-slate-500" style="padding: 2rem;">กำลังโหลดประวัติ...</div>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module" src="history.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบยืนยันการใช้อุปกรณ์สื่อโสตฯ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- HTML5 QR Code Scanner Library -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    #qr-scanner-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    #qr-reader-container {
+      background: white;
+      border-radius: 1.25rem;
+      width: 100%;
+      max-width: 24rem;
+      padding: 1.25rem;
+      box-shadow: var(--shadow-xl);
+      text-align: center;
+    }
+
+    #qr-reader {
+      width: 100%;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="mobile-layout">
+    <div class="page-content center">
+
+      <div class="card" style="text-align: center;">
+        <!-- Logos -->
+        <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
+          <img src="Logo-KMITL-Landscape.png" alt="KMITL Logo" style="height: 48px; object-fit: contain;">
+          <div style="width: 1px; height: 36px; background-color: var(--slate-300);"></div>
+          <img src="Logo-agri.png" alt="Agri Faculty Logo" style="height: 54px; object-fit: contain;">
+        </div>
+
+        <h1 class="card-title" id="welcome-greeting" style="font-size: 1.5rem;">สวัสดี</h1>
+        <p class="card-subtitle" style="margin-bottom: 1.25rem;">ระบบยืนยันการใช้ห้องเรียน<br>และอุปกรณ์สื่อโสตฯ</p>
+
+        <!-- Room info container (Shown if room parameter exists) -->
+        <div id="room-info-container" style="margin-bottom: 1.25rem; text-align: center;">
+          <p class="text-xs font-semibold text-slate-400 mb-1">ห้องเรียน</p>
+          <p style="font-size: 2.25rem; font-weight: 800; color: #000000; line-height: 1.1; letter-spacing: -0.02em;"
+            id="room-id-display">กำลังตรวจสอบ...</p>
+        </div>
+
+        <!-- Instructions (Shown when room exists) -->
+        <div id="room-instructions" class="text-left text-sm text-slate-600 mb-6"
+          style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <div class="flex" style="gap: 0.75rem; align-items: flex-start;">
+            <div
+              style="width: 1.5rem; height: 1.5rem; border-radius: 50%; background-color: var(--blue-50); color: var(--blue-600); font-weight: bold; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              1</div>
+            <p>ระบบจะขออนุญาตเข้าถึง <b>ตำแหน่ง (Location)</b> เพื่อยืนยันพิกัดหน้าห้อง</p>
+          </div>
+          <div class="flex" style="gap: 0.75rem; align-items: flex-start;">
+            <div
+              style="width: 1.5rem; height: 1.5rem; border-radius: 50%; background-color: var(--blue-50); color: var(--blue-600); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <i data-lucide="camera" style="width: 14px; height: 14px;"></i>
+            </div>
+            <p>ระบบจะขออนุญาตเข้าถึง <b>กล้อง</b> เพื่อถ่ายภาพยืนยันการเข้าใช้งาน</p>
+          </div>
+        </div>
+
+        <!-- Action Button for Login / Room Check -->
+        <button id="login-btn" class="btn btn-primary" style="margin-bottom: 0.75rem;">
+          <i data-lucide="log-in" style="width: 20px; height: 20px;"></i>
+          <span id="login-text">เข้าสู่ระบบด้วย Google</span>
+        </button>
+
+        <!-- No-Room Scan QR Button (Shown when no room parameter) -->
+        <div id="no-room-actions" class="hidden"
+          style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem;">
+          <button id="btn-scan-camera" class="btn"
+            style="background: var(--emerald-600); color: white; box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.4);">
+            <i data-lucide="camera" style="width: 20px; height: 20px;"></i>
+            <span>สแกน QR Code เพื่อเข้าใช้งาน</span>
+          </button>
+
+          <button id="btn-view-history" class="btn"
+            style="background: var(--slate-100); color: var(--slate-700); border: 1px solid var(--slate-200);">
+            <i data-lucide="history" style="width: 20px; height: 20px;"></i>
+            <span>ดูประวัติการเข้าใช้งาน</span>
+          </button>
+        </div>
+
+        <p class="text-xs text-slate-400 mt-4 mb-4">
+          * กรุณาใช้อีเมลสถาบัน (@kmitl.ac.th) <br>ในการเข้าสู่ระบบ
+        </p>
+
+        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--slate-100);">
+          <button id="admin-login-btn"
+            style="background: none; border: none; color: var(--slate-400); text-decoration: underline; font-size: 0.875rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin: 0 auto; box-shadow: none;">
+            <i data-lucide="settings" style="width: 16px; height: 16px;"></i>
+            <span>เข้าสู่ระบบสำหรับเจ้าหน้าที่ (Admin)</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- QR Scanner Modal -->
+  <div id="qr-scanner-modal">
+    <div id="qr-reader-container">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <h3
+          style="font-weight: bold; color: var(--slate-800); font-size: 1.125rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="qr-code" style="width: 20px; height: 20px; color: var(--blue-600);"></i>
+          สแกน QR Code ห้องเรียน
+        </h3>
+        <button id="btn-close-scanner"
+          style="background: none; border: none; cursor: pointer; color: var(--slate-400);">
+          <i data-lucide="x" style="width: 24px; height: 24px;"></i>
+        </button>
+      </div>
+      <p style="font-size: 0.875rem; color: var(--slate-500);">ส่องกล้องไปที่ QR Code ของห้องเรียน</p>
+      <div id="qr-reader"></div>
+    </div>
+  </div>
+
+  <script type="module" src="index.js"></script>
+</body>
+
+</html>
