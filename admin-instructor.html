@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="styles.css">
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    body { background-color: #f8fafc; }
+    body { background-color: #f8fafc; font-family: 'Prompt', sans-serif; }
     
     .admin-nav-bar {
       background: white;
@@ -22,18 +22,66 @@
       z-index: 30;
     }
 
+    .stat-card-item {
+      background: white;
+      border: 1px solid var(--slate-200);
+      border-radius: 1rem;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stat-card-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px -4px rgba(0,0,0,0.08);
+    }
+    .stat-icon-bg {
+      width: 3.25rem;
+      height: 3.25rem;
+      border-radius: 0.875rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .search-box-wrapper {
+      background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+      border: 1px solid #d1fae5;
+      border-radius: 1.25rem;
+      padding: 1.75rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.05);
+    }
+
     .table-container {
       overflow-x: auto;
       background: white;
-      border-radius: 1rem;
+      border-radius: 1.25rem;
       border: 1px solid var(--slate-200);
-      box-shadow: var(--shadow-sm);
+      box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05);
     }
     table { width: 100%; border-collapse: collapse; text-align: left; }
-    th { background: var(--slate-50); padding: 1rem 1.25rem; font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; color: var(--slate-600); border-bottom: 1px solid var(--slate-200); white-space: nowrap; }
-    td { padding: 1rem 1.25rem; font-size: 0.875rem; color: var(--slate-800); border-bottom: 1px solid var(--slate-100); vertical-align: middle; }
+    th { background: #f8fafc; padding: 1.125rem 1.5rem; font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; color: var(--slate-600); border-bottom: 1px solid var(--slate-200); white-space: nowrap; letter-spacing: 0.04em; }
+    td { padding: 1.125rem 1.5rem; font-size: 0.875rem; color: var(--slate-800); border-bottom: 1px solid var(--slate-100); vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: var(--slate-50); }
+    tr:hover td { background: #f1f5f9; }
+
+    .avatar-circle {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.75rem;
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
   </style>
 </head>
 
@@ -44,26 +92,26 @@
     <nav class="admin-nav-bar">
       <div style="max-width: 80rem; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
         <div style="display: flex; align-items: center; gap: 0.875rem;">
-          <div style="width: 2.75rem; height: 2.75rem; background: var(--grad-primary); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
+          <div style="width: 2.75rem; height: 2.75rem; background: linear-gradient(135deg, #059669 0%, #10b981 100%); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
             <i data-lucide="users" style="width: 24px; height: 24px;"></i>
           </div>
           <div>
             <h1 style="font-size: 1.25rem; font-weight: 700; color: var(--slate-900); line-height: 1.2;">สถิติผู้สอน (Admin)</h1>
-            <p style="font-size: 0.8125rem; color: var(--slate-500);">ตรวจสอบรายวิชาที่สอนและจำนวนครั้ง</p>
+            <p style="font-size: 0.8125rem; color: var(--slate-500);">ตรวจสอบรายวิชาที่เข้าสอนและจำนวนครั้งสะสม</p>
           </div>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-          <button onclick="window.location.href='admin.html'" class="btn" style="width: auto; background: white; color: var(--slate-700); border: 1px solid var(--slate-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="window.location.href='admin.html'" class="btn" style="width: auto; background: white; color: var(--slate-700); border: 1px solid var(--slate-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none; border-radius: 0.625rem;">
             <i data-lucide="calendar" style="width: 18px; height: 18px;"></i> ตารางสอน
           </button>
-          <button onclick="window.location.href='admin-history.html'" class="btn" style="width: auto; background: white; color: var(--slate-700); border: 1px solid var(--slate-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
+          <button onclick="window.location.href='admin-history.html'" class="btn" style="width: auto; background: white; color: var(--slate-700); border: 1px solid var(--slate-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none; border-radius: 0.625rem;">
             <i data-lucide="history" style="width: 18px; height: 18px;"></i> ประวัติการใช้งาน
           </button>
-          <button onclick="window.location.href='admin-settings.html'" class="btn" style="width: auto; background: white; color: var(--slate-700); border: 1px solid var(--slate-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
+          <button onclick="window.location.href='admin-settings.html'" class="btn" style="width: auto; background: white; color: var(--slate-700); border: 1px solid var(--slate-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none; border-radius: 0.625rem;">
             <i data-lucide="settings" style="width: 18px; height: 18px;"></i> ตั้งค่าพิกัด
           </button>
-          <button onclick="window.location.href='index.html'" class="btn" style="width: auto; background: white; color: var(--rose-600); border: 1px solid var(--slate-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
+          <button onclick="window.location.href='index.html'" class="btn" style="width: auto; background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none; border-radius: 0.625rem;">
             <i data-lucide="log-out" style="width: 18px; height: 18px;"></i> ออกจากระบบ
           </button>
         </div>
@@ -73,41 +121,73 @@
     <!-- Main Content -->
     <div style="max-width: 80rem; margin: 0 auto; width: 100%; padding: 2rem 1.5rem;" class="animate-fade-in">
       
-      <div class="card mb-6" style="padding: 1.5rem;">
-        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-          <i data-lucide="user-search" class="text-blue-600" style="width: 20px; height: 20px;"></i> เลือกอาจารย์ผู้สอนเพื่อดูสถิติ
+      <!-- Summary Stat Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+        <div class="stat-card-item">
+          <div class="stat-icon-bg" style="background: #ecfdf5; color: #059669;">
+            <i data-lucide="user-check" style="width: 26px; height: 26px;"></i>
+          </div>
+          <div>
+            <p style="font-size: 0.8125rem; font-weight: 600; color: #64748b;">จำนวนผู้สอนที่มีประวัติ</p>
+            <h3 id="stat-total-teachers" style="font-size: 1.75rem; font-weight: 700; color: #0f172a; margin: 0;">-</h3>
+          </div>
+        </div>
+
+        <div class="stat-card-item">
+          <div class="stat-icon-bg" style="background: #eff6ff; color: #2563eb;">
+            <i data-lucide="book-open" style="width: 26px; height: 26px;"></i>
+          </div>
+          <div>
+            <p style="font-size: 0.8125rem; font-weight: 600; color: #64748b;">รายวิชาทั้งหมดที่สอน</p>
+            <h3 id="stat-total-subjects" style="font-size: 1.75rem; font-weight: 700; color: #0f172a; margin: 0;">-</h3>
+          </div>
+        </div>
+
+        <div class="stat-card-item">
+          <div class="stat-icon-bg" style="background: #fef3c7; color: #d97706;">
+            <i data-lucide="check-circle-2" style="width: 26px; height: 26px;"></i>
+          </div>
+          <div>
+            <p style="font-size: 0.8125rem; font-weight: 600; color: #64748b;">จำนวนครั้งการเช็คอินรวม</p>
+            <h3 id="stat-total-sessions" style="font-size: 1.75rem; font-weight: 700; color: #0f172a; margin: 0;">-</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Section -->
+      <div class="search-box-wrapper">
+        <h2 style="font-size: 1.125rem; font-weight: 700; color: #064e3b; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="search" style="width: 20px; height: 20px; color: #059669;"></i> ค้นหาสถิติอาจารย์ผู้สอน
         </h2>
         
-        <form id="search-instructor-form" class="flex gap-4 items-end flex-wrap">
-          <div class="form-group mb-0" style="flex: 1; min-width: 280px;">
-            <label class="form-label">รายชื่อผู้สอนในระบบ</label>
-            <select id="instructor-select" class="form-input" required style="cursor: pointer;">
-              <option value="" disabled selected>กำลังโหลดรายชื่อผู้สอน...</option>
-            </select>
+        <form id="search-instructor-form" style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 280px; position: relative;">
+            <i data-lucide="search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #94a3b8; width: 18px; height: 18px;"></i>
+            <input type="text" id="instructor-email" class="form-input" placeholder="พิมพ์ชื่ออาจารย์ หรืออีเมลเพื่อค้นหาแบบเรียลไทม์..." style="border-radius: 0.75rem; border: 1px solid #a7f3d0; background: white; padding: 0.875rem 1rem 0.875rem 2.75rem; font-size: 0.9375rem; outline: none; width: 100%;">
           </div>
-          <button type="submit" id="btn-search" class="btn btn-primary" style="width: auto; padding: 0.75rem 2rem;">
-            <i data-lucide="search" style="width: 18px; height: 18px;"></i> ค้นหาสถิติ
+          <button type="button" id="btn-clear-search" class="btn" style="background: white; color: #64748b; border: 1px solid #cbd5e1; padding: 0.875rem 1.25rem; border-radius: 0.75rem; font-weight: 600; width: auto;">
+            <i data-lucide="rotate-ccw" style="width: 16px; height: 16px;"></i> ล้างคำค้น
           </button>
         </form>
       </div>
 
-      <!-- Instructor Info Card -->
-      <div id="instructor-info-card" class="card mb-6 hidden" style="padding: 1.5rem; background: var(--blue-50); border-color: var(--blue-200);">
-        <h3 class="font-bold text-blue-900 text-lg mb-1" id="info-name">ชื่อผู้สอน</h3>
-        <p class="text-blue-700 text-sm flex items-center gap-2" id="info-email">
-          <i data-lucide="mail" style="width: 16px; height: 16px;"></i> email@example.com
-        </p>
+      <!-- Table Header & Counter -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="font-weight: 700; color: #1e293b; font-size: 1.05rem;">รายชื่อผู้สอนและการเข้าห้องเรียน</h3>
+        <span id="results-count-badge" style="background: #f1f5f9; color: #475569; padding: 0.35rem 0.875rem; border-radius: 1rem; font-size: 0.8125rem; font-weight: 600; border: 1px solid #e2e8f0;">
+          กำลังโหลด...
+        </span>
       </div>
 
       <!-- Subjects Table -->
-      <div id="subjects-container" class="table-container hidden">
+      <div id="subjects-container" class="table-container">
         <table>
           <thead>
             <tr>
+              <th style="width: 320px;">อาจารย์ผู้สอน</th>
               <th>รหัส/ชื่อวิชา</th>
-              <th>วันและเวลาสอน</th>
-              <th>ห้องเรียน</th>
-              <th style="text-align: center;">จำนวนครั้งที่สอนแล้ว</th>
+              <th style="width: 180px;">ห้องเรียน</th>
+              <th style="text-align: center; width: 180px;">จำนวนครั้งที่เข้าสอน</th>
             </tr>
           </thead>
           <tbody id="subjects-table-body">
@@ -116,10 +196,11 @@
         </table>
       </div>
       
-      <div id="no-result-msg" class="text-center text-slate-500 hidden" style="padding: 4rem 1rem; border: 1px dashed var(--slate-300); border-radius: 1rem; background: var(--slate-50);">
-        <i data-lucide="inbox" style="width: 48px; height: 48px; margin: 0 auto 1rem; color: var(--slate-400);"></i>
-        <p class="font-medium text-lg text-slate-700">ไม่พบข้อมูลรายวิชา</p>
-        <p class="text-sm">ไม่พบวิชาที่ผูกกับอีเมลนี้ หรือผู้สอนท่านนี้ยังไม่มีประวัติการเช็คอิน</p>
+      <!-- Empty state -->
+      <div id="no-result-msg" class="text-center text-slate-500 hidden" style="padding: 4rem 1rem; border: 1px dashed var(--slate-300); border-radius: 1.25rem; background: white; margin-top: 1rem;">
+        <i data-lucide="inbox" style="width: 52px; height: 52px; margin: 0 auto 1rem; color: #cbd5e1;"></i>
+        <p class="font-bold text-lg text-slate-700">ไม่พบข้อมูลประวัติการสอน</p>
+        <p class="text-sm text-slate-500">ไม่พบประวัติการเข้าใช้งานที่ตรงกับเงื่อนไขการค้นหาของคุณ</p>
       </div>
 
     </div>

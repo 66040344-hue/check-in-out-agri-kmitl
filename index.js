@@ -41,15 +41,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     loginText.textContent = 'กำลังตรวจสอบ...';
     
     try {
+      const rawRoomId = roomId ? roomId.trim() : '';
       let isValidRoom = false;
-      const roomSnap = await getDoc(doc(db, 'rooms', encodeURIComponent(roomId)));
-      if (roomSnap.exists()) {
-        isValidRoom = true;
-      } else {
-        const qSchedules = query(collection(db, 'schedules'), where('room', '==', roomId));
-        const snapSchedules = await getDocs(qSchedules);
-        if (!snapSchedules.empty) {
-          isValidRoom = true;
+      
+      const variations = new Set([
+        rawRoomId,
+        encodeURIComponent(rawRoomId),
+        decodeURIComponent(rawRoomId)
+      ]);
+
+      // Check rooms collection
+      for (const v of variations) {
+        try {
+          const snap = await getDoc(doc(db, 'rooms', v));
+          if (snap.exists()) {
+            isValidRoom = true;
+            break;
+          }
+        } catch(e) {}
+      }
+
+      // Check schedules collection if not found in rooms
+      if (!isValidRoom) {
+        for (const v of variations) {
+          try {
+            const qSchedules = query(collection(db, 'schedules'), where('room', '==', v));
+            const snapSchedules = await getDocs(qSchedules);
+            if (!snapSchedules.empty) {
+              isValidRoom = true;
+              break;
+            }
+          } catch(e) {}
         }
       }
 

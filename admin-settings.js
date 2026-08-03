@@ -277,24 +277,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const rId = inputRoomId.value.trim();
     const coordsRaw = inputRoomCoords.value.trim();
     
-    if (!rId || !coordsRaw) return;
-
-    let lat = NaN, lng = NaN;
-    const parsedDms = parseDMS(coordsRaw);
-    if (parsedDms) {
-      lat = parsedDms.lat;
-      lng = parsedDms.lng;
-    } else {
-      const parts = coordsRaw.split(',');
-      if (parts.length === 2) {
-        lat = parseFloat(parts[0]);
-        lng = parseFloat(parts[1]);
-      }
-    }
-    
-    if (isNaN(lat) || isNaN(lng)) {
-      showToast('รูปแบบพิกัดไม่ถูกต้อง', 'error');
+    if (!rId) {
+      showToast('กรุณากรอกชื่อห้องเรียน', 'error');
       return;
+    }
+
+    let lat = null, lng = null;
+    
+    if (coordsRaw) {
+      const parsedDms = parseDMS(coordsRaw);
+      if (parsedDms) {
+        lat = parsedDms.lat;
+        lng = parsedDms.lng;
+      } else {
+        const parts = coordsRaw.split(',');
+        if (parts.length === 2) {
+          lat = parseFloat(parts[0]);
+          lng = parseFloat(parts[1]);
+        }
+      }
+      
+      if (lat === null || isNaN(lat) || lng === null || isNaN(lng)) {
+        showToast('รูปแบบพิกัดไม่ถูกต้อง', 'error');
+        return;
+      }
     }
 
     const btnSubmit = document.getElementById('btn-save-room');

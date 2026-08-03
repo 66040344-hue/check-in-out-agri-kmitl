@@ -225,7 +225,45 @@ document.addEventListener('DOMContentLoaded', () => {
     renderStatus(STATUS_LOCATING);
     startLocatingProgress();
     try {
-      const roomDoc = await getDoc(doc(db, 'rooms', encodeURIComponent(roomId)));
+      const rawRoomId = roomId ? roomId.trim() : '';
+      const variations = new Set([
+        rawRoomId,
+        encodeURIComponent(rawRoomId),
+        decodeURIComponent(rawRoomId)
+      ]);
+
+      let isValidRoom = false;
+      let targetCoords = DEFAULT_COORDS;
+
+      // Check rooms collection
+      for (const v of variations) {
+        try {
+          const snap = await getDoc(doc(db, 'rooms', v));
+          if (snap.exists()) {
+            isValidRoom = true;
+            const roomData = snap.data();
+            if (roomData.latitude && roomData.longitude) {
+              targetCoords = { lat: roomData.latitude, lng: roomData.longitude };
+            }
+            break;
+          }
+        } catch(e) {}
+      }
+
+      // Fallback: Check if there's any schedule
+      if (!isValidRoom) {
+        for (const v of variations) {
+          try {
+            const qSchedules = query(collection(db, 'schedules'), where('room', '==', v));
+            const snapSchedules = await getDocs(qSchedules);
+            if (!snapSchedules.empty) {
+              isValidRoom = true;
+              break;
+            }
+          } catch(e) {}
+        }
+      }
+
       const settingsDoc = await getDoc(doc(db, 'settings', 'systemSettings'));
       
       let readyDistLimit = 15;
@@ -234,23 +272,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const sData = settingsDoc.data();
         if (sData.readyDistance) readyDistLimit = sData.readyDistance;
         if (sData.warningDistance) warningDistLimit = sData.warningDistance;
-      }
-
-      let isValidRoom = roomDoc.exists();
-      let targetCoords = DEFAULT_COORDS;
-
-      if (isValidRoom) {
-        const roomData = roomDoc.data();
-        if (roomData.latitude && roomData.longitude) {
-          targetCoords = { lat: roomData.latitude, lng: roomData.longitude };
-        }
-      } else {
-        // Fallback: Check if there's any schedule
-        const qSchedules = query(collection(db, 'schedules'), where('room', '==', roomId));
-        const snapSchedules = await getDocs(qSchedules);
-        if (!snapSchedules.empty) {
-          isValidRoom = true;
-        }
       }
 
       if (!isValidRoom) {
