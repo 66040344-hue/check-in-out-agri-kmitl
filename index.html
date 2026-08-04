@@ -2,146 +2,126 @@
 <html lang="th">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ระบบยืนยันการใช้อุปกรณ์สื่อโสตฯ</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- HTML5 QR Code Scanner Library -->
-  <script src="https://unpkg.com/html5-qrcode"></script>
-  <style>
-    #qr-scanner-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(8px);
-      z-index: 100;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-    }
-
-    #qr-reader-container {
-      background: white;
-      border-radius: 1.25rem;
-      width: 100%;
-      max-width: 24rem;
-      padding: 1.25rem;
-      box-shadow: var(--shadow-xl);
-      text-align: center;
-    }
-
-    #qr-reader {
-      width: 100%;
-      border-radius: 0.75rem;
-      overflow: hidden;
-      margin-top: 1rem;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart Soil Analysis - เข้าสู่ระบบ</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
-  <div class="mobile-layout">
-    <div class="page-content center">
 
-      <div class="card" style="text-align: center;">
-        <!-- Logos -->
-        <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
-          <img src="Logo-KMITL-Landscape.png" alt="KMITL Logo" style="height: 48px; object-fit: contain;">
-          <div style="width: 1px; height: 36px; background-color: var(--slate-300);"></div>
-          <img src="Logo-agri.png" alt="Agri Faculty Logo" style="height: 54px; object-fit: contain;">
-        </div>
-
-        <h1 class="card-title" id="welcome-greeting" style="font-size: 1.5rem;">สวัสดี</h1>
-        <p class="card-subtitle" style="margin-bottom: 1.25rem;">ระบบยืนยันการใช้ห้องเรียน<br>และอุปกรณ์สื่อโสตฯ</p>
-
-        <!-- Room info container (Shown if room parameter exists) -->
-        <div id="room-info-container" style="margin-bottom: 1.25rem; text-align: center;">
-          <p class="text-xs font-semibold text-slate-400 mb-1">ห้องเรียน</p>
-          <p style="font-size: 2.25rem; font-weight: 800; color: #000000; line-height: 1.1; letter-spacing: -0.02em;"
-            id="room-id-display">กำลังตรวจสอบ...</p>
-        </div>
-
-        <!-- Instructions (Shown when room exists) -->
-        <div id="room-instructions" class="text-left text-sm text-slate-600 mb-6"
-          style="display: flex; flex-direction: column; gap: 0.75rem;">
-          <div class="flex" style="gap: 0.75rem; align-items: flex-start;">
-            <div
-              style="width: 1.5rem; height: 1.5rem; border-radius: 50%; background-color: var(--blue-50); color: var(--blue-600); font-weight: bold; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-              1</div>
-            <p>ระบบจะขออนุญาตเข้าถึง <b>ตำแหน่ง (Location)</b> เพื่อยืนยันพิกัดหน้าห้อง</p>
-          </div>
-          <div class="flex" style="gap: 0.75rem; align-items: flex-start;">
-            <div
-              style="width: 1.5rem; height: 1.5rem; border-radius: 50%; background-color: var(--blue-50); color: var(--blue-600); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-              <i data-lucide="camera" style="width: 14px; height: 14px;"></i>
+    <div class="auth-container">
+        <!-- Login View -->
+        <div id="login-view" class="auth-card glass-panel animate-fade-in" style="background: var(--bg-card);">
+            <div class="text-center mb-6">
+                <div
+                    style="width: 58px; height: 58px; border-radius: 18px; background: var(--gradient-emerald); display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 1.85rem; margin: 0 auto 1rem auto; box-shadow: var(--shadow-emerald-glow);">
+                    <i class="fas fa-seedling"></i>
+                </div>
+                <h1 class="text-emerald" style="font-size: 1.95rem; font-weight: 700;">Smart Soil</h1>
+                <p class="text-muted" style="font-size: 0.88rem; margin-top: 4px;">
+                    ระบบวิเคราะห์ดินอัจฉริยะเพื่อการเกษตรแม่นยำ</p>
             </div>
-            <p>ระบบจะขออนุญาตเข้าถึง <b>กล้อง</b> เพื่อถ่ายภาพยืนยันการเข้าใช้งาน</p>
-          </div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label class="form-label">เบอร์โทรศัพท์ / Username</label>
+                    <div style="position: relative;">
+                        <i class="fas fa-user"
+                            style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--primary-color);"></i>
+                        <input type="text" id="login-phone" class="form-control" style="padding-left: 2.6rem;"
+                            placeholder="กรอกเบอร์โทรศัพท์ หรือ Username" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">รหัสผ่าน</label>
+                    <div style="position: relative;">
+                        <i class="fas fa-key"
+                            style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--primary-color);"></i>
+                        <input type="password" id="login-password" class="form-control" style="padding-left: 2.6rem;"
+                            placeholder="••••••••" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-emerald btn-block mt-4">
+                    <i class="fas fa-right-to-bracket"></i> เข้าสู่ระบบ
+                </button>
+            </form>
+
+            <div class="text-center mt-6">
+                <p class="text-muted" style="font-size: 0.88rem;">
+                    ยังไม่มีบัญชีสมาชิกใช่หรือไม่?
+                    <a href="#" id="show-register"
+                        style="color: var(--primary-color); text-decoration: none; font-weight: 600;">สมัครสมาชิกเกษตรกร</a>
+                </p>
+            </div>
         </div>
 
-        <!-- Action Button for Login / Room Check -->
-        <button id="login-btn" class="btn btn-primary" style="margin-bottom: 0.75rem;">
-          <i data-lucide="log-in" style="width: 20px; height: 20px;"></i>
-          <span id="login-text">เข้าสู่ระบบด้วย Google</span>
-        </button>
+        <!-- Register View -->
+        <div id="register-view" class="auth-card glass-panel hidden" style="background: var(--bg-card);">
+            <div class="text-center mb-6">
+                <h2 class="text-gradient" style="font-size: 1.6rem;">สมัครสมาชิกเกษตรกร</h2>
+                <p class="text-muted" style="font-size: 0.88rem;">ลงทะเบียนบัญชีแปลงเกษตรของคุณ</p>
+            </div>
 
-        <!-- No-Room Scan QR Button (Shown when no room parameter) -->
-        <div id="no-room-actions" class="hidden"
-          style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem;">
-          <button id="btn-scan-camera" class="btn"
-            style="background: var(--emerald-600); color: white; box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.4);">
-            <i data-lucide="camera" style="width: 20px; height: 20px;"></i>
-            <span>สแกน QR Code เพื่อเข้าใช้งาน</span>
-          </button>
+            <form id="register-form">
+                <div class="form-group">
+                    <label class="form-label">ชื่อ-นามสกุล</label>
+                    <input type="text" id="reg-name" class="form-control" placeholder="ชื่อ นามสกุล" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">อีเมล (ถ้ามี)</label>
+                    <input type="email" id="reg-email" class="form-control" placeholder="example@email.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">เบอร์โทรศัพท์ (ใช้ในการล็อกอิน)</label>
+                    <input type="tel" id="reg-phone" class="form-control" placeholder="08xxxxxxxx" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">รหัสผ่าน</label>
+                    <input type="password" id="reg-password" class="form-control" placeholder="กำหนดรหัสผ่าน" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ยืนยันรหัสผ่าน</label>
+                    <input type="password" id="reg-confirm-password" class="form-control"
+                        placeholder="ยืนยันรหัสผ่านอีกครั้ง" required>
+                </div>
+                <button type="submit" class="btn btn-emerald btn-block mt-6">
+                    <i class="fas fa-user-plus"></i> สมัครสมาชิก
+                </button>
+            </form>
 
-          <button id="btn-view-history" class="btn"
-            style="background: var(--slate-100); color: var(--slate-700); border: 1px solid var(--slate-200);">
-            <i data-lucide="history" style="width: 20px; height: 20px;"></i>
-            <span>ดูประวัติการเข้าใช้งาน</span>
-          </button>
+            <div class="text-center mt-6">
+                <p class="text-muted" style="font-size: 0.88rem;">
+                    มีบัญชีสมาชิกอยู่แล้ว?
+                    <a href="#" id="show-login"
+                        style="color: var(--primary-color); text-decoration: none; font-weight: 600;">เข้าสู่ระบบ</a>
+                </p>
+            </div>
         </div>
 
-        <p class="text-xs text-slate-400 mt-4 mb-4">
-          * กรุณาใช้อีเมลสถาบัน (@kmitl.ac.th) <br>ในการเข้าสู่ระบบ
-        </p>
-
-        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--slate-100);">
-          <button id="admin-login-btn"
-            style="background: none; border: none; color: var(--slate-400); text-decoration: underline; font-size: 0.875rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin: 0 auto; box-shadow: none;">
-            <i data-lucide="settings" style="width: 16px; height: 16px;"></i>
-            <span>เข้าสู่ระบบสำหรับเจ้าหน้าที่ (Admin)</span>
-          </button>
+        <!-- Waiting for Approval View -->
+        <div id="waiting-view" class="auth-card glass-panel hidden text-center" style="background: var(--bg-card);">
+            <div
+                style="width: 68px; height: 68px; background: #fef3c7; border: 1px solid #fde68a; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem auto;">
+                <i class="fas fa-user-clock" style="font-size: 2.25rem; color: #b45309;"></i>
+            </div>
+            <h2 class="mb-3" style="color: #b45309;">บัญชีอยู่ระหว่างรออนุมัติ</h2>
+            <p class="text-muted mb-6" style="font-size: 0.9rem; line-height: 1.6;">
+                ระบบได้รับการลงทะเบียนของคุณเรียบร้อยแล้ว<br>
+                ขณะนี้บัญชีของคุณกำลังรอการอนุมัติสิทธิ์จากผู้ดูแลระบบ (Admin)<br>
+                <small class="text-muted">ระบบจะแจ้งเตือนอัตโนมัติเมื่อได้รับการอนุมัติ</small>
+            </p>
+            <button id="logout-waiting-btn" class="btn btn-outline btn-block"><i class="fas fa-sign-out-alt"></i>
+                กลับหน้าเข้าสู่ระบบ</button>
         </div>
-      </div>
-
     </div>
-  </div>
 
-  <!-- QR Scanner Modal -->
-  <div id="qr-scanner-modal">
-    <div id="qr-reader-container">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-        <h3
-          style="font-weight: bold; color: var(--slate-800); font-size: 1.125rem; display: flex; align-items: center; gap: 0.5rem;">
-          <i data-lucide="qr-code" style="width: 20px; height: 20px; color: var(--blue-600);"></i>
-          สแกน QR Code ห้องเรียน
-        </h3>
-        <button id="btn-close-scanner"
-          style="background: none; border: none; cursor: pointer; color: var(--slate-400);">
-          <i data-lucide="x" style="width: 24px; height: 24px;"></i>
-        </button>
-      </div>
-      <p style="font-size: 0.875rem; color: var(--slate-500);">ส่องกล้องไปที่ QR Code ของห้องเรียน</p>
-      <div id="qr-reader"></div>
-    </div>
-  </div>
-
-  <script type="module" src="index.js"></script>
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 
 </html>

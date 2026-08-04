@@ -2,389 +2,493 @@
 <html lang="th">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ระบบจัดการ (Admin Dashboard)</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- CDN for SheetJS -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-  <!-- CDN for QR Code (QRious) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-
-  <style>
-    @media print {
-      .no-print {
-        display: none !important;
-      }
-
-      #print-area {
-        display: flex !important;
-        position: static;
-        width: 100%;
-        flex-wrap: wrap;
-        gap: 1rem;
-        justify-content: center;
-        background: white;
-      }
-
-      #print-area * {
-        visibility: visible;
-      }
-
-      .print-card {
-        width: 45%;
-        border: 4px solid var(--slate-200);
-        padding: 2rem;
-        border-radius: 1.5rem;
-        text-align: center;
-        margin-bottom: 1rem;
-        break-inside: avoid;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-    }
-
-    .admin-nav-bar {
-      background: white;
-      border-bottom: 1px solid var(--slate-200);
-      box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.05);
-      position: sticky;
-      top: 0;
-      z-index: 30;
-    }
-
-    .stat-card {
-      background: white;
-      border: 1px solid var(--slate-200);
-      border-radius: 1rem;
-      padding: 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .stat-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 16px -4px rgba(15, 23, 42, 0.08);
-    }
-
-    .stat-icon {
-      width: 3.25rem;
-      height: 3.25rem;
-      border-radius: 0.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .badge-day {
-      padding: 0.25rem 0.625rem;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      display: inline-block;
-    }
-
-    .day-mon {
-      background: #fef3c7;
-      color: #b45309;
-    }
-
-    .day-tue {
-      background: #fce7f3;
-      color: #be185d;
-    }
-
-    .day-wed {
-      background: #dcfce7;
-      color: #15803d;
-    }
-
-    .day-thu {
-      background: #ffedd5;
-      color: #c2410c;
-    }
-
-    .day-fri {
-      background: #e0f2fe;
-      color: #0369a1;
-    }
-
-    .day-sat {
-      background: #f3e8ff;
-      color: #6b21a8;
-    }
-
-    .day-sun {
-      background: #ffe4e6;
-      color: #be123c;
-    }
-
-    .action-btn-sm {
-      padding: 0.5rem 0.75rem;
-      border-radius: 0.5rem;
-      border: 1px solid var(--slate-200);
-      background: white;
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.375rem;
-      transition: 0.2s;
-    }
-
-    .action-btn-sm:hover {
-      background: var(--slate-50);
-      border-color: var(--slate-300);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart Soil - Admin Control Center</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Export Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 
 <body>
 
-  <!-- Print Container -->
-  <div id="print-area" style="display: none;"></div>
-
-  <div class="admin-layout no-print">
-
-    <!-- Navbar Header -->
-    <nav class="admin-nav-bar">
-      <div
-        style="max-width: 80rem; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-        <div style="display: flex; align-items: center; gap: 0.875rem;">
-          <div
-            style="width: 2.75rem; height: 2.75rem; background: var(--grad-primary); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
-            <i data-lucide="shield-check" style="width: 24px; height: 24px;"></i>
-          </div>
-          <div>
-            <h1 style="font-size: 1.25rem; font-weight: 700; color: var(--slate-900); line-height: 1.2;">
-              ระบบจัดการสื่อโสตฯ (Admin)</h1>
-            <p style="font-size: 0.8125rem; color: var(--slate-500);">จัดการข้อมูลรายวิชาและ QR Code ประจำห้องเรียน</p>
-          </div>
-        </div>
-
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-          <button onclick="window.location.href='admin-history.html'" class="btn"
-            style="width: auto; background: var(--blue-50); color: var(--blue-700); border: 1px solid var(--blue-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
-            <i data-lucide="history" style="width: 18px; height: 18px;"></i> ประวัติการใช้งาน
-          </button>
-          <button onclick="window.location.href='admin-instructor.html'" class="btn" style="width: auto; background: var(--emerald-50); color: var(--emerald-700); border: 1px solid var(--emerald-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
-            <i data-lucide="users" style="width: 18px; height: 18px;"></i> สถิติผู้สอน
-          </button>
-          <button onclick="window.location.href='admin-settings.html'" class="btn" style="width: auto; background: white; color: var(--slate-700); border: 1px solid var(--slate-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
-            <i data-lucide="settings" style="width: 18px; height: 18px;"></i> ตั้งค่าพิกัด
-          </button>
-          <button onclick="window.location.href='index.html'" class="btn"
-            style="width: auto; background: white; color: var(--rose-600); border: 1px solid var(--slate-200); padding: 0.625rem 1rem; font-size: 0.875rem; box-shadow: none;">
-            <i data-lucide="log-out" style="width: 18px; height: 18px;"></i> ออกจากระบบ
-          </button>
-        </div>
-      </div>
-    </nav>
-
-    <!-- Main Container -->
-    <div style="max-width: 80rem; margin: 0 auto; width: 100%; padding: 2rem 1.5rem;" class="animate-fade-in">
-
-      <!-- Stats Dashboard Cards -->
-      <div
-        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
-        <div class="stat-card" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseenter="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-md)'" onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)'" onclick="window.scrollTo({top: document.getElementById('admin-main-grid').offsetTop - 100, behavior: 'smooth'});">
-          <div class="stat-icon" style="background: var(--blue-50); color: var(--blue-600);">
-            <i data-lucide="book-open" style="width: 24px; height: 24px;"></i>
-          </div>
-          <div>
-            <p style="font-size: 0.8125rem; color: var(--slate-500); font-weight: 500;">วิชาในระบบ</p>
-            <p style="font-size: 1.5rem; font-weight: 700; color: var(--slate-800);" id="stat-schedules">0</p>
-          </div>
-        </div>
-
-        <div class="stat-card" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseenter="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-md)'" onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)'" onclick="window.location.href='admin-settings.html?tab=rooms'">
-          <div class="stat-icon" style="background: var(--emerald-50); color: var(--emerald-600);">
-            <i data-lucide="door-open" style="width: 24px; height: 24px;"></i>
-          </div>
-          <div>
-            <p style="font-size: 0.8125rem; color: var(--slate-500); font-weight: 500;">ห้องเรียนที่มีตาราง</p>
-            <p style="font-size: 1.5rem; font-weight: 700; color: var(--slate-800);" id="stat-rooms">0</p>
-          </div>
-        </div>
-
-        <div class="stat-card" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseenter="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-md)'" onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)'" onclick="window.location.href='admin-instructor.html'">
-          <div class="stat-icon" style="background: var(--amber-50); color: var(--amber-600);">
-            <i data-lucide="user-check" style="width: 24px; height: 24px;"></i>
-          </div>
-          <div>
-            <p style="font-size: 0.8125rem; color: var(--slate-500); font-weight: 500;">อาจารย์ผู้สอน</p>
-            <p style="font-size: 1.5rem; font-weight: 700; color: var(--slate-800);" id="stat-teachers">0</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Main Columns -->
-      <div style="display: grid; grid-template-columns: 340px 1fr; gap: 1.75rem; align-items: flex-start;"
-        id="admin-main-grid">
-
-        <!-- Left: Upload Excel Card -->
-        <div class="card" style="position: sticky; top: 5rem;">
-          <h2 class="card-title text-base mb-1" style="display: flex; align-items: center; gap: 0.5rem;">
-            <i data-lucide="file-spreadsheet" style="color: var(--emerald-600); width: 20px; height: 20px;"></i>
-            นำเข้าตารางสอน (Excel)
-          </h2>
-          <p class="text-xs text-slate-500 mb-4">
-            รูปแบบ : วัน|ห้อง|เวลาเริ่ม|เวลาสิ้นสุด|ชื่อวิชา|รายชื่อผู้สอน|อีเมลผู้สอน|พิกัดห้องเรียน DMS
-          </p>
-
-          <label class="upload-area mb-4" id="excel-upload-area" style="position: relative; height: 10rem;">
-            <i data-lucide="upload-cloud" class="text-blue-500 mb-2" style="width: 32px; height: 32px;"></i>
-            <span id="file-name" class="font-medium text-xs text-center text-slate-600" style="padding: 0 1rem;">ลากไฟล์
-              Excel มาวาง หรือคลิกเพื่อเลือกไฟล์</span>
-            <input type="file" id="excel-file" accept=".xlsx, .xls, .csv"
-              style="position: absolute; inset: 0; opacity: 0; cursor: pointer;">
-          </label>
-
-          <button id="btn-import" class="btn btn-primary" disabled style="padding: 0.75rem 1rem; font-size: 0.9rem;">
-            <i data-lucide="upload" style="width: 18px; height: 18px;"></i>
-            <span id="import-text">นำเข้าข้อมูลวิชา</span>
-          </button>
-        </div>
-
-        <!-- Right: Schedule List Panel -->
-        <div class="card">
-          <div class="flex justify-between items-center mb-4 flex-wrap gap-2"
-            style="border-bottom: 1px solid var(--slate-100); padding-bottom: 1rem;">
-            <div>
-              <h2 class="card-title text-lg" style="margin: 0;">รายการตารางสอน</h2>
-              <p class="text-xs text-slate-400">ค้นหา แก้ไข และพิมพ์ QR Code ประจำห้อง</p>
+    <div class="dashboard-layout">
+        <!-- Executive Sidebar -->
+        <div class="sidebar">
+            <div class="mb-8 flex items-center gap-3">
+                <div
+                    style="width: 44px; height: 44px; border-radius: 14px; background: var(--gradient-emerald); display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 1.4rem; box-shadow: var(--shadow-emerald-glow);">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+                <div>
+                    <h2 class="text-gradient" style="font-size: 1.35rem; line-height: 1; font-weight: 700;">Smart Soil
+                    </h2>
+                    <span class="badge badge-success" style="margin-top: 4px; font-size: 0.7rem;"><i
+                            class="fas fa-user-shield"></i> ADMIN PORTAL</span>
+                </div>
             </div>
 
-            <div class="flex items-center gap-2 flex-wrap">
-              <input type="text" id="schedule-search" placeholder="ค้นหาห้อง/วิชา/อาจารย์..." class="form-input"
-                style="padding: 0.45rem 0.875rem; font-size: 0.875rem; width: 200px;">
-              <button id="btn-delete-all" class="action-btn-sm"
-                style="background: var(--rose-50); color: var(--rose-700); border-color: var(--rose-200); font-weight: 600;">
-                <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i> ลบทั้งหมด
-              </button>
-              <button id="btn-print-all" class="action-btn-sm"
-                style="background: var(--blue-50); color: var(--blue-700); border-color: var(--blue-200); font-weight: 600;">
-                <i data-lucide="printer" style="width: 16px; height: 16px;"></i> พิมพ์ QR ทั้งหมด
-              </button>
-              <button id="btn-add-new" class="action-btn-sm"
-                style="background: var(--emerald-50); color: var(--emerald-700); border-color: var(--emerald-200); font-weight: 600;">
-                <i data-lucide="plus" style="width: 16px; height: 16px;"></i> เพิ่มรายวิชา
-              </button>
-            </div>
-          </div>
+            <nav class="flex-col" style="flex: 1;">
+                <a href="#" class="nav-link active" id="nav-dashboard">
+                    <i class="fas fa-chart-pie"></i> ภาพรวมระบบ (Dashboard)
+                </a>
+                <a href="#" class="nav-link" id="nav-users">
+                    <i class="fas fa-user-check"></i> อนุมัติ & จัดการเกษตรกร
+                </a>
+                <a href="#" class="nav-link" id="nav-fields-standards">
+                    <i class="fas fa-sliders"></i> จัดการตัวแปรและเกณฑ์มาตรฐาน
+                </a>
+                <a href="#" class="nav-link" id="nav-formulas">
+                    <i class="fas fa-square-root-variable"></i> จัดการคลังสูตรปุ๋ย
+                </a>
+            </nav>
 
-          <div id="schedule-list"
-            style="overflow-y: auto; max-height: 650px; display: flex; flex-direction: column; gap: 0.75rem; padding-right: 0.25rem;">
-            <div class="text-center text-slate-500"
-              style="padding: 3rem 0; background: var(--slate-50); border-radius: 0.75rem; border: 1px dashed var(--slate-200);">
-              กำลังโหลดตารางสอน...
+            <div class="mt-auto">
+                <div class="glass-card mb-3 flex items-center justify-between" style="padding: 0.75rem;">
+                    <span style="font-size: 0.85rem; font-weight: 500;"><i
+                            class="fas fa-circle-half-stroke text-emerald"></i> โหมดกลางคืน</span>
+                    <button class="theme-toggle-btn btn btn-outline"
+                        style="padding: 0.35rem 0.75rem; border-radius: var(--radius-full);" onclick="toggleTheme()">
+                        <i class="fas fa-moon theme-icon"></i>
+                    </button>
+                </div>
+
+                <div class="glass-card mb-4 flex items-center gap-3" style="padding: 0.85rem;">
+                    <div
+                        style="width: 38px; height: 38px; border-radius: 50%; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #ffffff;">
+                        A
+                    </div>
+                    <div style="overflow: hidden;">
+                        <div id="admin-name"
+                            style="font-weight: 600; font-size: 0.92rem; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                            Admin User</div>
+                        <div class="text-muted" style="font-size: 0.78rem;">ผู้ดูแลระบบศูนย์กลาง</div>
+                    </div>
+                </div>
+                <button id="logout-btn" class="btn btn-outline btn-block"><i class="fas fa-sign-out-alt"></i>
+                    ออกจากระบบ</button>
             </div>
-          </div>
         </div>
 
-      </div>
+        <!-- Main Content -->
+        <div class="main-content">
 
+            <!-- Topbar Header -->
+            <div class="admin-topbar">
+                <div>
+                    <h2 style="font-weight: 700;">ระบบบริหารจัดการศูนย์กลาง</h2>
+                    <p class="text-muted" style="font-size: 0.88rem;">ควบคุมตัวแปรดิน กำหนดเกณฑ์มาตรฐาน
+                        และอนุมัติสมาชิกเกษตรกร</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="badge badge-success" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                        <i class="fas fa-circle-check"></i> System Online
+                    </span>
+                </div>
+            </div>
+
+            <!-- Dashboard View -->
+            <div id="view-dashboard" class="animate-fade-in">
+                <div class="grid grid-cols-4 gap-6 mb-8">
+                    <div class="glass-card">
+                        <div class="text-muted mb-2" style="font-size: 0.85rem;"><i
+                                class="fas fa-users text-gradient"></i> เกษตรกรทั้งหมด</div>
+                        <h1 class="text-gradient" id="stat-total-users">0</h1>
+                    </div>
+                    <div class="glass-card">
+                        <div class="text-muted mb-2" style="font-size: 0.85rem;"><i class="fas fa-clock"
+                                style="color: var(--warning-color);"></i> รอการอนุมัติ</div>
+                        <h1 id="stat-pending-users" style="color: var(--warning-color);">0</h1>
+                    </div>
+                    <div class="glass-card">
+                        <div class="text-muted mb-2" style="font-size: 0.85rem;"><i
+                                class="fas fa-file-waveform text-emerald"></i> บันทึกวิเคราะห์ดิน</div>
+                        <h1 class="text-emerald" id="stat-total-records">0</h1>
+                    </div>
+                    <div class="glass-card">
+                        <div class="text-muted mb-2" style="font-size: 0.85rem;"><i class="fas fa-sliders"
+                                style="color: var(--secondary-color);"></i> ตัวแปรเปิดใช้งาน</div>
+                        <h1 style="color: var(--secondary-color);" id="stat-total-fields">0</h1>
+                    </div>
+                </div>
+
+                <div class="glass-panel">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3><i class="fas fa-chart-line text-gradient"></i> แนวโน้มการประมวลผลวิเคราะห์ดินรายเดือน</h3>
+                        <span class="text-muted" style="font-size: 0.85rem;">อัปเดตเรียลไทม์</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="systemChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users View -->
+            <div id="view-users" class="hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2>อนุมัติและจัดการเกษตรกร</h2>
+                        <p class="text-muted" style="font-size: 0.9rem;">
+                            สมาชิกสมัครใหม่ต้องได้รับการอนุมัติจากผู้ดูแลระบบก่อนเข้าใช้งาน</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="btn btn-outline" style="border-color: #16a34a; color: #16a34a;"
+                            onclick="exportUsersExcel()">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button class="btn btn-outline" style="border-color: #0284c7; color: #0284c7;"
+                            onclick="exportUsersPDF()">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-panel">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ชื่อ-นามสกุล</th>
+                                    <th>เบอร์โทรศัพท์</th>
+                                    <th>อีเมล</th>
+                                    <th>วันที่สมัคร</th>
+                                    <th>สิทธิ์</th>
+                                    <th>สถานะ</th>
+                                    <th>การจัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <!-- Dynamic Content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unified Fields & Standards View -->
+            <div id="view-fields-standards" class="hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2>จัดการตัวแปรและเกณฑ์มาตรฐานวิเคราะห์ดิน</h2>
+                        <p class="text-muted" style="font-size: 0.9rem;">เพิ่มและกำหนดค่าสูงสุด ต่ำสุด ช่วงที่เหมาะสม
+                            พืชที่แนะนำ และสูตรปุ๋ยในที่เดียว</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="btn btn-outline" style="border-color: #16a34a; color: #16a34a;"
+                            onclick="exportStandardsExcel()">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button class="btn btn-outline" style="border-color: #0284c7; color: #0284c7;"
+                            onclick="exportStandardsPDF()">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button class="btn btn-emerald" onclick="showFieldStandardModal()"><i
+                                class="fas fa-plus-circle"></i> เพิ่มตัวแปรใหม่</button>
+                    </div>
+                </div>
+
+                <div class="glass-panel">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-3">
+                            <label class="font-bold text-gray-700" style="margin-bottom: 0;"><i class="fas fa-leaf text-emerald"></i> ชนิดพืช:</label>
+                            <select id="admin-crop-selector" class="form-control" style="width: auto; min-width: 200px; padding: 0.4rem 1rem;" onchange="loadCropStandards(this.value)">
+                                <option value="general">ดินทั่วไป (General)</option>
+                                <option value="durian">ทุเรียน (Durian)</option>
+                                <option value="rice">ข้าว (Rice)</option>
+                                <option value="sugarcane">อ้อย (Sugarcane)</option>
+                            </select>
+                            <button id="btn-reset-general" class="btn btn-outline" style="border-color: #ef4444; color: #ef4444; padding: 0.35rem 0.75rem; font-size: 0.85rem;" onclick="
+                                const crop = document.getElementById('admin-crop-selector').value;
+                                if(confirm(`ต้องการรีเซ็ตค่ามาตรฐานของ ${crop === 'general' ? 'ดินทั่วไป' : 'ทุเรียน'} หรือไม่?`)) { 
+                                    if(crop === 'general') { seedDefaultGeneralCrop().then(() => alert('รีเซ็ตเรียบร้อยแล้ว')).then(() => loadCropStandards('general')); }
+                                    else if(crop === 'durian') { seedDurianCrop().then(() => alert('รีเซ็ตเรียบร้อยแล้ว')).then(() => loadCropStandards('durian')); }
+                                }">
+                                <i class="fas fa-undo"></i> โหลดค่าเริ่มต้น
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ชื่อตัวแปรดิน</th>
+                                    <th>หน่วยวัด</th>
+                                    <th>เกณฑ์ปกติ (Min-Max)</th>
+                                    <th>ค่าที่เหมาะสม</th>
+                                    <th>พืชและปุ๋ยแนะนำ</th>
+                                    <th>การจัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fields-standards-table-body">
+                                <!-- Dynamic Content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulas View -->
+            <div id="view-formulas" class="animate-fade-in hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 style="font-weight: 700; color: var(--text-color); margin-bottom: 0.25rem;">คลังสูตรคำนวณ (Formula Library)</h3>
+                        <p class="text-muted" style="font-size: 0.85rem;">จัดการสมการคณิตศาสตร์เพื่อนำไปใช้อ้างอิงในคำแนะนำอัจฉริยะ (Smart Advices)</p>
+                    </div>
+                    <button class="btn btn-emerald" onclick="showFormulaModal()">
+                        <i class="fas fa-plus"></i> เพิ่มสูตรคำนวณใหม่
+                    </button>
+                </div>
+                
+                <div class="glass-panel" style="padding: 0;">
+                    <div style="padding: 1.25rem; border-bottom: 1px solid var(--border-color);">
+                        <h4 style="font-weight: 600; margin: 0; font-size: 1rem;"><i class="fas fa-list text-primary mr-2"></i> รายการสูตรคำนวณทั้งหมด</h4>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: rgba(241, 245, 249, 0.5); text-align: left;">
+                                    <th style="padding: 1rem; font-weight: 600; color: var(--text-color); font-size: 0.85rem;">ชื่อสูตร</th>
+                                    <th style="padding: 1rem; font-weight: 600; color: var(--text-color); font-size: 0.85rem;">สมการคณิตศาสตร์</th>
+                                    <th style="padding: 1rem; font-weight: 600; color: var(--text-color); font-size: 0.85rem; text-align: center;">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="formulas-list">
+                                <!-- Dynamic Formula Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modals -->
+            <!-- Unified Field & Standard Modal -->
+            <div id="modal-field-standard" class="hidden"
+                style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.65); backdrop-filter: blur(8px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 1rem;">
+                <div class="glass-panel animate-fade-in"
+                    style="width: 100%; max-width: 860px; background: #ffffff; max-height: 90vh; overflow-y: auto; border-radius: 16px; padding: 2rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid #e2e8f0;">
+                    
+                    <!-- Header -->
+                    <div class="flex justify-between items-center mb-6 pb-4" style="border-bottom: 1px solid #f1f5f9;">
+                        <div class="flex items-center gap-3">
+                            <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                                <i class="fas fa-sliders-h"></i>
+                            </div>
+                            <div>
+                                <h3 style="font-size: 1.25rem; font-weight: 700; color: #0f172a; margin: 0;" id="modal-fs-title">เพิ่มตัวแปรและเกณฑ์มาตรฐาน</h3>
+                                <p style="font-size: 0.825rem; color: #64748b; margin: 2px 0 0 0;">กำหนดช่วงค่ามาตรฐานและข้อแนะนำสำหรับการวิเคราะห์ดิน</p>
+                            </div>
+                        </div>
+                        <button type="button" 
+                            style="width: 36px; height: 36px; border-radius: 50%; border: 1px solid #e2e8f0; background: #f8fafc; color: #64748b; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"
+                            onmouseover="this.style.background='#ef4444'; this.style.color='#ffffff'; this.style.borderColor='#ef4444';"
+                            onmouseout="this.style.background='#f8fafc'; this.style.color='#64748b'; this.style.borderColor='#e2e8f0';"
+                            onclick="closeModal('modal-field-standard')">
+                            <i class="fas fa-times" style="font-size: 0.95rem;"></i>
+                        </button>
+                    </div>
+
+                    <form id="form-field-standard">
+                        <input type="hidden" id="fs-field-id">
+
+                        <!-- Section 1: Basic Info -->
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;">
+                            <div style="font-weight: 700; color: #1e293b; margin-bottom: 1rem; font-size: 0.95rem; display: flex; align-items: center; gap: 0.6rem;">
+                                <span style="background: linear-gradient(135deg, #10b981, #059669); color: white; width: 24px; height: 24px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);">1</span>
+                                ข้อมูลตัวแปรหลัก
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="form-group mb-0">
+                                    <label class="form-label" style="font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; display: block;">ชื่อตัวแปร <span style="color: #ef4444;">*</span></label>
+                                    <input type="text" id="fs-name" class="form-control" placeholder="เช่น ค่า pH, OM, ฟอสฟอรัส" required style="padding: 0.6rem 0.85rem; font-size: 0.95rem; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%;">
+                                    <p style="font-size: 0.75rem; color: #64748b; margin-top: 5px; margin-bottom: 0;">ชื่อที่จะแสดงให้เกษตรกรเห็นในหน้าผลลัพธ์</p>
+                                </div>
+                                <div class="form-group mb-0">
+                                    <label class="form-label" style="font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; display: block;">หน่วยวัด</label>
+                                    <input type="text" id="fs-unit" class="form-control" placeholder="เช่น %, mg/kg" style="padding: 0.6rem 0.85rem; font-size: 0.95rem; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%;">
+                                    <p style="font-size: 0.75rem; color: #64748b; margin-top: 5px; margin-bottom: 0;">ถ้าไม่มีหน่วยให้พิมพ์ '-' หรือปล่อยว่างไว้</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 2: Standards -->
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;">
+                            <div style="font-weight: 700; color: #1e293b; margin-bottom: 1rem; font-size: 0.95rem; display: flex; align-items: center; gap: 0.6rem;">
+                                <span style="background: linear-gradient(135deg, #10b981, #059669); color: white; width: 24px; height: 24px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);">2</span>
+                                เกณฑ์มาตรฐานและคำแนะนำพื้นฐาน
+                            </div>
+                            <div class="grid grid-cols-3 gap-4 mb-4">
+                                <div class="form-group mb-0">
+                                    <label class="form-label" style="font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; display: block;">ค่าต่ำสุด (Min) <span style="color: #ef4444;">*</span></label>
+                                    <input type="number" step="any" id="fs-min" class="form-control" placeholder="เช่น 5.5" required style="padding: 0.6rem 0.85rem; font-size: 0.95rem; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%;">
+                                </div>
+                                <div class="form-group mb-0">
+                                    <label class="form-label" style="font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; display: block;">ค่าสูงสุด (Max) <span style="color: #ef4444;">*</span></label>
+                                    <input type="number" step="any" id="fs-max" class="form-control" placeholder="เช่น 7.5" required style="padding: 0.6rem 0.85rem; font-size: 0.95rem; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%;">
+                                </div>
+                                <div class="form-group mb-0">
+                                    <label class="form-label" style="font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; display: block;">ช่วงที่เหมาะสม (ข้อความ) <span style="color: #ef4444;">*</span></label>
+                                    <input type="text" id="fs-ideal" class="form-control" placeholder="เช่น 6.0 - 7.0" required style="padding: 0.6rem 0.85rem; font-size: 0.95rem; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%;">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="form-group mb-0">
+                                    <label class="form-label" style="font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; display: block;">พืชที่แนะนำ <span style="color: #ef4444;">*</span></label>
+                                    <input type="text" id="fs-crops" class="form-control" placeholder="เช่น ข้าว, ข้าวโพด, ทุเรียน" required style="padding: 0.6rem 0.85rem; font-size: 0.95rem; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%;">
+                                    <p style="font-size: 0.75rem; color: #64748b; margin-top: 5px; margin-bottom: 0;">แนะนำปลูกอะไรหากอยู่ในเกณฑ์นี้</p>
+                                </div>
+                                <div class="form-group mb-0">
+                                    <label class="form-label" style="font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; display: block;">แผนและสูตรปุ๋ยพื้นฐาน <span style="color: #ef4444;">*</span></label>
+                                    <input type="text" id="fs-fertilizers" class="form-control" placeholder="เช่น สูตร 15-15-15 อัตรา 50 กก./ไร่" required style="padding: 0.6rem 0.85rem; font-size: 0.95rem; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%;">
+                                    <p style="font-size: 0.75rem; color: #64748b; margin-top: 5px; margin-bottom: 0;">ถ้าต้องการคำนวณปุ๋ยแบบเจาะจง ให้ไปตั้งค่าในข้อ 3 ด้านล่างแทน</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 3: Smart Advices -->
+                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                            <div class="flex justify-between items-center mb-3">
+                                <div style="font-weight: 700; color: #1e293b; font-size: 0.95rem; display: flex; align-items: center; gap: 0.6rem;">
+                                    <span style="background: linear-gradient(135deg, #10b981, #059669); color: white; width: 24px; height: 24px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);">3</span>
+                                    กฎและคำแนะนำอัจฉริยะ (Smart Advices)
+                                </div>
+                                <button type="button" 
+                                    style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 8px; font-weight: 600; padding: 0.45rem 0.9rem; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25); transition: all 0.2s;"
+                                    onmouseover="this.style.opacity='0.95'; this.style.transform='translateY(-1px)';"
+                                    onmouseout="this.style.opacity='1'; this.style.transform='translateY(0)';"
+                                    onclick="addAdviceRow()">
+                                    <i class="fas fa-plus"></i> เพิ่มเงื่อนไขใหม่
+                                </button>
+                            </div>
+                            
+                            <!-- No-Code Info Box -->
+                            <div style="background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.2); padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 1rem; display: flex; align-items: flex-start; gap: 0.75rem;">
+                                <i class="fas fa-lightbulb" style="color: #10b981; font-size: 1.1rem; margin-top: 2px;"></i>
+                                <div style="font-size: 0.825rem; color: #334155; line-height: 1.5;">
+                                    <strong>การคำนวณอัจฉริยะ (No-Code Formula):</strong> คุณสามารถแนบสูตรคำนวณจากคลังสูตรลงในข้อความคำแนะนำแต่ละเงื่อนไข เพื่อให้ระบบคำนวณปริมาณปุ๋ยหรือสารปรับปรุงดินให้อัตโนมัติในหน้าแสดงผล
+                                </div>
+                            </div>
+
+                            <div id="fs-advices-container"
+                                style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 320px; overflow-y: auto; padding-right: 4px;">
+                                <!-- Dynamic Advice Rows -->
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-3 pt-2">
+                            <button type="button" 
+                                style="flex: 1; padding: 0.7rem; font-weight: 600; border-radius: 10px; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; cursor: pointer; transition: background 0.2s;"
+                                onmouseover="this.style.background='#e2e8f0'"
+                                onmouseout="this.style.background='#f1f5f9'"
+                                onclick="closeModal('modal-field-standard')">ยกเลิก</button>
+                            <button type="submit" 
+                                style="flex: 2; padding: 0.7rem; font-weight: 600; border-radius: 10px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: all 0.2s;"
+                                onmouseover="this.style.opacity='0.95'; this.style.transform='translateY(-1px)';"
+                                onmouseout="this.style.opacity='1'; this.style.transform='translateY(0)';">
+                                <i class="fas fa-save mr-2"></i> บันทึกค่ามาตรฐาน
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+    
+    <!-- Modal for Adding/Editing Formula -->
+    <div id="modal-formula" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.65); backdrop-filter: blur(8px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 1rem;">
+        <div class="glass-panel animate-fade-in" style="width: 100%; max-width: 580px; background: #ffffff; border-radius: 16px; padding: 2rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid #e2e8f0;">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-6 pb-4" style="border-bottom: 1px solid #f1f5f9;">
+                <div class="flex items-center gap-3">
+                    <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.25rem; font-weight: 700; color: #0f172a; margin: 0;" id="modal-formula-title">เพิ่มสูตรคำนวณใหม่</h3>
+                        <p style="font-size: 0.825rem; color: #64748b; margin: 2px 0 0 0;">กำหนดสมการคำนวณปุ๋ยอัจฉริยะสำหรับเก็บไว้ในคลัง</p>
+                    </div>
+                </div>
+                <button type="button" 
+                    style="width: 36px; height: 36px; border-radius: 50%; border: 1px solid #e2e8f0; background: #f8fafc; color: #64748b; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"
+                    onmouseover="this.style.background='#ef4444'; this.style.color='#ffffff'; this.style.borderColor='#ef4444';"
+                    onmouseout="this.style.background='#f8fafc'; this.style.color='#64748b'; this.style.borderColor='#e2e8f0';"
+                    onclick="closeModal('modal-formula')">
+                    <i class="fas fa-times" style="font-size: 0.95rem;"></i>
+                </button>
+            </div>
+
+            <form id="form-formula">
+                <input type="hidden" id="formula-id">
+                
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                    <div class="form-group mb-4">
+                        <label class="form-label" style="font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; display: block;">ชื่อสูตร (สำหรับเลือกใช้) <span style="color: #ef4444;">*</span></label>
+                        <input type="text" id="formula-name" class="form-control" placeholder="เช่น สูตรโดโลไมต์ (ดินร่วนปนทราย)" required style="padding: 0.65rem 0.85rem; font-size: 0.95rem; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%;">
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="form-label" style="font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; display: block;">หน่วยแสดงผล (เช่น กก./ไร่, ลิตร/ต้น)</label>
+                        <input type="text" id="formula-unit" class="form-control" placeholder="เช่น กก./ไร่" style="padding: 0.65rem 0.85rem; font-size: 0.95rem; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%;">
+                    </div>
+                    <div class="form-group mb-0">
+                        <label class="form-label" style="font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 6px; display: block;">สมการคณิตศาสตร์ <span style="color: #ef4444;">*</span></label>
+                        <div style="display: flex; gap: 0.4rem; margin-bottom: 0.6rem; flex-wrap: wrap;">
+                            <button type="button" 
+                                style="padding: 0.3rem 0.65rem; font-size: 0.78rem; font-weight: 600; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; color: #334155; cursor: pointer; transition: all 0.2s;"
+                                onmouseover="this.style.borderColor='var(--primary-color)'; this.style.color='var(--primary-color)';"
+                                onmouseout="this.style.borderColor='#cbd5e1'; this.style.color='#334155';"
+                                onclick="insertToFormula('val')">+ ค่าที่วัดได้ (val)</button>
+                            <button type="button" 
+                                style="padding: 0.3rem 0.65rem; font-size: 0.78rem; font-weight: 600; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; color: #334155; cursor: pointer; transition: all 0.2s;"
+                                onmouseover="this.style.borderColor='var(--primary-color)'; this.style.color='var(--primary-color)';"
+                                onmouseout="this.style.borderColor='#cbd5e1'; this.style.color='#334155';"
+                                onclick="insertToFormula('min')">+ ขั้นต่ำ (min)</button>
+                            <button type="button" 
+                                style="padding: 0.3rem 0.65rem; font-size: 0.78rem; font-weight: 600; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; color: #334155; cursor: pointer; transition: all 0.2s;"
+                                onmouseover="this.style.borderColor='var(--primary-color)'; this.style.color='var(--primary-color)';"
+                                onmouseout="this.style.borderColor='#cbd5e1'; this.style.color='#334155';"
+                                onclick="insertToFormula('max')">+ ขั้นสูง (max)</button>
+                        </div>
+                        <input type="text" id="formula-expression" class="form-control" placeholder="เช่น (min - val) * 250" required style="font-family: Consolas, Monaco, monospace; font-size: 1.05rem; padding: 0.7rem 0.85rem; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%;">
+                        <p style="font-size: 0.75rem; color: #64748b; margin-top: 6px; margin-bottom: 0;">คลิกปุ่มตัวแปรด้านบนเพื่อแทรกลงในสมการได้ทันที</p>
+                    </div>
+                </div>
+                
+                <script>
+                    function insertToFormula(text) {
+                        const input = document.getElementById('formula-expression');
+                        const start = input.selectionStart;
+                        const end = input.selectionEnd;
+                        const current = input.value;
+                        input.value = current.substring(0, start) + text + current.substring(end);
+                        input.focus();
+                        input.selectionStart = input.selectionEnd = start + text.length;
+                    }
+                </script>
+                
+                <!-- Actions -->
+                <div class="flex gap-3 pt-1">
+                    <button type="button" 
+                        style="flex: 1; padding: 0.7rem; font-weight: 600; border-radius: 10px; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; cursor: pointer; transition: background 0.2s;"
+                        onmouseover="this.style.background='#e2e8f0'"
+                        onmouseout="this.style.background='#f1f5f9'"
+                        onclick="closeModal('modal-formula')">ยกเลิก</button>
+                    <button type="submit" 
+                        style="flex: 2; padding: 0.7rem; font-weight: 600; border-radius: 10px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: all 0.2s;"
+                        onmouseover="this.style.opacity='0.95'; this.style.transform='translateY(-1px)';"
+                        onmouseout="this.style.opacity='1'; this.style.transform='translateY(0)';">
+                        <i class="fas fa-save mr-2"></i> บันทึกสูตร
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
 
-  <!-- Edit/Add Schedule Modal -->
-  <div id="edit-modal" class="hidden no-print"
-    style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem;">
-    <div
-      style="background: white; border-radius: 1.25rem; width: 100%; max-width: 42rem; max-height: 90vh; display: flex; flex-direction: column; box-shadow: var(--shadow-xl);">
-      <div class="flex justify-between items-center"
-        style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--slate-100); background: var(--slate-50); border-radius: 1.25rem 1.25rem 0 0;">
-        <h2 id="modal-title" class="text-lg font-bold text-slate-800 flex items-center gap-2">
-          <i data-lucide="edit" class="text-blue-600" style="width: 20px; height: 20px;"></i> แก้ไขข้อมูลรายวิชา
-        </h2>
-        <button id="btn-close-modal" style="background: none; border: none; cursor: pointer; color: var(--slate-400);">
-          <i data-lucide="x" style="width: 22px; height: 22px;"></i>
-        </button>
-      </div>
-
-      <div style="padding: 1.5rem; overflow-y: auto; flex: 1;">
-        <form id="edit-form">
-          <input type="hidden" id="edit-id">
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;" class="mb-4">
-            <div class="form-group mb-0">
-              <label class="form-label">เลขห้องเรียน (Room)</label>
-              <input type="text" id="edit-room" class="form-input" placeholder="เช่น A-101" required>
-            </div>
-            <div class="form-group mb-0">
-              <label class="form-label">วันในสัปดาห์ (Day of Week)</label>
-              <select id="edit-day" class="form-input" required>
-                <option value="จันทร์">จันทร์</option>
-                <option value="อังคาร">อังคาร</option>
-                <option value="พุธ">พุธ</option>
-                <option value="พฤหัสบดี">พฤหัสบดี</option>
-                <option value="ศุกร์">ศุกร์</option>
-                <option value="เสาร์">เสาร์</option>
-                <option value="อาทิตย์">อาทิตย์</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group mb-4">
-            <label class="form-label">ชื่อวิชา (Subject)</label>
-            <input type="text" id="edit-subject" class="form-input" placeholder="เช่น การเขียนโปรแกรมคอมพิวเตอร์"
-              required>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;" class="mb-4">
-            <div class="form-group mb-0">
-              <label class="form-label">เวลาเริ่มต้น (Start Time)</label>
-              <input type="time" id="edit-start-time" class="form-input" required>
-            </div>
-            <div class="form-group mb-0">
-              <label class="form-label">เวลาสิ้นสุด (End Time)</label>
-              <input type="time" id="edit-end-time" class="form-input" required>
-            </div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;" class="mb-4">
-            <div class="form-group mb-0">
-              <label class="form-label">ชื่ออาจารย์ผู้สอน (คั่นด้วย , หากมีหลายท่าน)</label>
-              <input type="text" id="edit-teacher-name" class="form-input" placeholder="เช่น อ.สมชาย, อ.สมศรี">
-            </div>
-            <div class="form-group mb-0">
-              <label class="form-label">อีเมลอาจารย์ผู้สอน</label>
-              <input type="email" id="edit-teacher-email" class="form-input" placeholder="teacher@kmitl.ac.th">
-            </div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;" class="mb-4">
-            <div class="form-group mb-0">
-              <label class="form-label">พิกัดห้องเรียน (รูปแบบ DMS เช่น 13°43'35.9"N 100°46'49.4"E หรือ ทศนิยม 13.72,
-                100.78)</label>
-              <input type="text" id="edit-coords" class="form-input"
-                placeholder="ตัวอย่าง: 13°43'35.9&quot;N 100°46'49.4&quot;E หรือ 13.7299, 100.7781">
-            </div>
-          </div>
-
-          <div
-            style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--slate-100);">
-            <button type="button" id="btn-cancel-modal" class="btn"
-              style="width: auto; background: var(--slate-100); color: var(--slate-700); border: 1px solid var(--slate-200);">ยกเลิก</button>
-            <button type="submit" class="btn btn-primary"
-              style="width: auto; padding: 0.75rem 1.5rem;">บันทึกข้อมูล</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <script type="module" src="admin.js"></script>
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/admin.js"></script>
 </body>
 
 </html>
